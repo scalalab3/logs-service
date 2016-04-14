@@ -20,10 +20,10 @@ object LogsServiceBuild extends Build {
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers += Resolver.sonatypeRepo("releases"),
-    scalaVersion := "2.11.6"
-  ) 
-  
-  
+    scalaVersion := "2.11.8"
+  )
+
+
   lazy val main = Project(
     id = "logs-service",
     base = file("."),
@@ -34,9 +34,9 @@ object LogsServiceBuild extends Build {
       licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
       libraryDependencies ++= Seq()
     )
-  ) 
+  )
 
-  
+
 
 
 }
