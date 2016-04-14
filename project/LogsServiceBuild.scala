@@ -32,7 +32,9 @@ object LogsServiceBuild extends Build {
       name := "logs-service",
       version := "0.0.1",
       licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-      libraryDependencies ++= Seq()
+      libraryDependencies ++= Seq(
+        "org.specs2" %% "specs2-core" % "3.7.2" % "test"
+      )
     )
   )
 
