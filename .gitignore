@@ -24,3 +24,12 @@ project/plugins/project/
 .classpath
 .project
 .cache
+
+# emacs temp file
+*~
+*.\#
+*\#
+*.el
+# ensime files
+.ensime_cache
+.ensime
