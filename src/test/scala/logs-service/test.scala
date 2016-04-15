@@ -1,6 +1,8 @@
+package com.github.scalalab3_logs.logs_service
 import org.specs2._
+import org.specs2.matcher.{MatcherMacros}
 
-abstract class DefaultSpec extends mutable.Specification
+abstract class DefaultSpec extends mutable.Specification with MatcherMacros
 
 class ExampleText extends DefaultSpec {
   "Example test case" >> {
