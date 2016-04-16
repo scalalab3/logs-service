@@ -11,6 +11,7 @@ object LogsServiceBuild extends Build {
       "-language:existentials",
       "-language:higherKinds",
       "-language:implicitConversions",
+      "-language:experimental.macros",
       "-unchecked",
       "-Yno-adapted-args",
       "-Ywarn-dead-code",
@@ -32,9 +33,16 @@ object LogsServiceBuild extends Build {
       name := "logs-service",
       version := "0.0.1",
       licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-      libraryDependencies ++= Seq(
-        "org.specs2" %% "specs2-core" % "3.7.2" % "test"
-      )
+      libraryDependencies ++= {
+        val akkaV = "2.4.4"
+        val specsV = "3.7.2"
+        Seq(
+          "com.typesafe.akka" %% "akka-actor" % akkaV,
+          "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
+          "org.specs2" %% "specs2-core" % specsV % "test",
+          "org.specs2" %% "specs2-matcher-extra" % specsV % "test"
+        )
+      }
     )
   )
 
