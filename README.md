@@ -23,3 +23,14 @@ If you want to work on specific module (eg. storage), you have to run `project` 
 ```
 
 After that all commands (test, compile, etc) will be ran only for that module.
+
+
+## Testing
+
+You can see some example tests in `common/src/test/scala/com/github/scallab3/logs/common.scala`
+
+Consult with [structure doc](https://etorreborre.github.io/specs2/guide/SPECS2-3.7.2/org.specs2.guide.Structure.html) and [matchers doc](https://etorreborre.github.io/specs2/guide/SPECS2-3.7.2/org.specs2.guide.Matchers.html) to write matchers.
+
+To run all tests ensure that you're in `project main`.
+
+`~test` will run watcher that execute test after each change in source code.
