@@ -68,7 +68,5 @@ object LogsServiceBuild extends Build {
     .dependsOn(common)
 
   lazy val main = makeProject("main", Some("."))
-    .dependsOn(core, parser, storage, ui, analytics)
-  .aggregate(core, parser, storage, ui, analytics)
-
+    .aggregate(common, core, parser, storage, ui, analytics)
 }
