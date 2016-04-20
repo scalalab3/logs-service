@@ -56,6 +56,10 @@ object LogsServiceBuild extends Build {
   lazy val core = makeProject("core")
     .dependsOn(common)
 
+  lazy val `macro-impl` = makeProject("macro-impl") settings (
+    libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
+    )
+
   lazy val parser = makeProject("parser")
     .dependsOn(common)
 
@@ -69,7 +73,7 @@ object LogsServiceBuild extends Build {
     .dependsOn(common)
 
   lazy val main = makeProject("main", Some("."))
-    .dependsOn(core, parser, storage, ui, analytics)
-  .aggregate(core, parser, storage, ui, analytics)
+    .dependsOn(core, `macro-impl`, parser, storage, ui, analytics)
+    .aggregate(core, `macro-impl`, parser, storage, ui, analytics)
 
 }

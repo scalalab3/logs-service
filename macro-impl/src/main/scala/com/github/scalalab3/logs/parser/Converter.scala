@@ -35,7 +35,9 @@ object ToMap {
       implicit def default[T] = at[T](a => a)
     }
 
-    implicit val hnilToMapRec: ToMapRec[HNil] = (l: HNil) => Map.empty
+    implicit val hnilToMapRec: ToMapRec[HNil] = new ToMapRec[HNil] {
+      override def apply(l: HNil): Map[String, Any] = Map.empty
+    }
 
     implicit def hconsToMapRec0[K <: Symbol, V, R <: HList, T <: HList](implicit
                                                                         wit: Witness.Aux[K],
@@ -63,6 +65,7 @@ object ToMap {
 
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
+
 // change to j.u.HM
 trait FromMap[T] {
   def fromMap(map: Map[String, Any]): T
@@ -88,10 +91,12 @@ object FromMap {
       (q"$decoded → t.$name", q"map($decoded).asInstanceOf[$returnType]")
     }.unzip
 
-    c.Expr[FromMap[T]] { q"""
+    c.Expr[FromMap[T]] {
+      q"""
       new Mappable[$tpe] {
         def fromMap(map: Map[String, Any]): $tpe = $companion(..$fromMapParams)
       }
-    """ }
+    """
+    }
   }
 }
