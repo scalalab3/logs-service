@@ -32,7 +32,8 @@ object LogsServiceBuild extends Build {
       "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
       "org.specs2" %% "specs2-core" % specsV % "test",
       "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
-      "com.chuusai" %% "shapeless" % "2.2.4"
+      "com.chuusai" %% "shapeless" % "2.2.4",
+      "org.scala-lang" % "scala-compiler" % "2.11.8"
     )
   }
 
@@ -56,15 +57,15 @@ object LogsServiceBuild extends Build {
   lazy val core = makeProject("core")
     .dependsOn(common)
 
-  lazy val `macro-impl` = makeProject("macro-impl") settings (
-    libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
-    )
 
   lazy val parser = makeProject("parser")
     .dependsOn(common)
 
-  lazy val storage = makeProject("storage")
+  lazy val storage_macro = makeProject("storage_macro")
     .dependsOn(common)
+
+  lazy val storage = makeProject("storage")
+    .dependsOn(common, storage_macro)
 
   lazy val ui = makeProject("ui")
     .dependsOn(common)
