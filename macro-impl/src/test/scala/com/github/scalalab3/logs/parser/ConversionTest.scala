@@ -4,8 +4,5 @@ import org.specs2.mutable.Specification
 
 
 class ConversionTest extends Specification {
-  "some should" >> {
-    "some test" in {
-    }
-  }
+
 }

@@ -56,6 +56,10 @@ object LogsServiceBuild extends Build {
   lazy val core = makeProject("core")
     .dependsOn(common)
 
+  lazy val `macro-impl` = makeProject("macro-impl") settings (
+    libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
+    )
+
   lazy val parser = makeProject("parser")
     .dependsOn(common)
 
