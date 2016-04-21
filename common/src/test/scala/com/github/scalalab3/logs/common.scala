@@ -20,16 +20,6 @@ abstract class AkkaSpec extends TestKit(ActorSystem())
 }
 
 
-class ExampleTest extends DefaultSpec {
-  "Test case" >> {
-    val i = 1
-    "Subcase 0" in {
-      i must_== (1)
-    }
-  }
-}
-
-
 class EchoActor extends Actor {
   def receive = {
     case msg => sender() ! msg
