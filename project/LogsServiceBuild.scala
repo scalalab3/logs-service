@@ -18,6 +18,7 @@ object LogsServiceBuild extends Build {
       "-Ywarn-numeric-widen",
       "-Xfuture",
       "-Xlint"
+      // ,"-Ymacro-debug-lite"
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers += Resolver.sonatypeRepo("releases"),
@@ -65,7 +66,7 @@ object LogsServiceBuild extends Build {
     .dependsOn(common)
 
   lazy val storage = makeProject("storage")
-    .dependsOn(common)
+    .dependsOn(common, common_macro)
 
   lazy val ui = makeProject("ui")
     .dependsOn(common)

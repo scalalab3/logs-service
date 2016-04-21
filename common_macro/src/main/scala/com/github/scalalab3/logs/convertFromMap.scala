@@ -1,11 +1,11 @@
-package com.github.scalalab3.logs
+package com.github.scalalab3.logs.common_macro
 
+import java.util.HashMap
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
-// change to j.u.HM
 trait FromMap[T] {
-  def fromMap(map: Map[String, Any]): T
+  def fromMap(map: HashMap[String, Any]): T
 }
 
 object FromMap {
@@ -13,6 +13,7 @@ object FromMap {
 
   def materializeMappableImpl[T: c.WeakTypeTag](c: whitebox.Context):
       c.Expr[FromMap[T]] = {
+
     import c.universe._
     val tpe = weakTypeOf[T]
     val companion = tpe.typeSymbol.companion
@@ -21,18 +22,18 @@ object FromMap {
       case m: MethodSymbol if m.isPrimaryConstructor ⇒ m
     }.get.paramLists.head
 
-    val (_, fromMapParams) = fields.map { field ⇒
+
+    val fromMapParams = fields.map { field =>
       val name = field.name.toTermName
       val decoded = name.decodedName.toString
       val returnType = tpe.decl(name).typeSignature
 
-      (q"$decoded → t.$name", q"map($decoded).asInstanceOf[$returnType]")
-    }.unzip
-
+      q"map.get($decoded).asInstanceOf[$returnType]"
+    }
     c.Expr[FromMap[T]] {
       q"""
-      new Mappable[$tpe] {
-        def fromMap(map: Map[String, Any]): $tpe = $companion(..$fromMapParams)
+      new FromMap[$tpe] {
+        def fromMap(map: HashMap[String, Any]): $tpe = $companion(..$fromMapParams)
       }
     """
     }
