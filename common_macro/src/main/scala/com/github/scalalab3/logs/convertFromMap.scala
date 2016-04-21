@@ -1,3 +1,5 @@
+package com.github.scalalab3.logs
+
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 

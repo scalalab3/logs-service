@@ -52,7 +52,10 @@ object LogsServiceBuild extends Build {
     )
   }
 
+  lazy val common_macro = makeProject("common_macro")
+
   lazy val common = makeProject("common")
+    .dependsOn(common_macro)
 
   lazy val core = makeProject("core")
     .dependsOn(common)
@@ -61,11 +64,8 @@ object LogsServiceBuild extends Build {
   lazy val parser = makeProject("parser")
     .dependsOn(common)
 
-  lazy val storage_macro = makeProject("storage_macro")
-    .dependsOn(common)
-
   lazy val storage = makeProject("storage")
-    .dependsOn(common, storage_macro)
+    .dependsOn(common)
 
   lazy val ui = makeProject("ui")
     .dependsOn(common)
@@ -74,5 +74,5 @@ object LogsServiceBuild extends Build {
     .dependsOn(common)
 
   lazy val main = makeProject("main", Some("."))
-    .aggregate(common, core, parser, storage, ui, analytics)
+    .aggregate(common, common_macro, core, parser, storage, ui, analytics)
 }
