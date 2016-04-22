@@ -1,7 +1,7 @@
 package com.github.scalalab3.logs.storage
 
-import com.github.scalalab3.logs.common_macro.FromMap
-import com.github.scalalab3.logs.storage.ToMap._
+import com.github.scalalab3.logs._, common.Log,
+  common_macro.FromMap, storage.ToMap._
 import java.util.HashMap
 import org.specs2.mutable.Specification
 
@@ -16,6 +16,31 @@ class Test extends Specification {
     val out:HashMap[A, B] = new HashMap()
     m.foreach(kv => out.put(kv._1, kv._2))
     out
+  }
+
+  def genLog(with_id:Boolean=true) = {
+    val id = if (with_id) Some(java.util.UUID.randomUUID) else None
+    val timestamp = java.time.Instant.now()
+    val hm:HM = Map(
+      "id" -> id,
+      "level" -> 0,
+      "env" -> "test",
+      "name" -> "test name",
+      "timestamp" -> timestamp,
+      "message" -> "test message",
+      "cause" -> "",
+      "stackTrace" -> "")
+
+    val log = Log(
+      id=id,
+      level=0,
+      env="test",
+      name="test name",
+      timestamp=timestamp,
+      message="test message",
+      cause="",
+      stackTrace="")
+    (log, hm)
   }
 }
 
@@ -37,6 +62,14 @@ class ConversionTest extends Test {
     val shouldBe:HM = Map("a" -> "A", "b" -> 0, "c" -> 2.0)
     (testObj:HM) must_== shouldBe
   }
+
+  "Test Log to HashMap" >> {
+    val (obj, hm) = genLog()
+    (obj:HM) must_== hm
+
+    val (obj2, hm2) = genLog(with_id=false)
+    (obj2:HM) must_== hm2
+  }
 }
 
 
@@ -52,5 +85,13 @@ class UnpackTest extends Test {
     val testHM:HM = Map("a" -> "asdf", "b" -> "fdsa")
     val testObj = materialize[TestClass3](testHM)
     obj must_== testObj
+  }
+
+  "Test Log from HashMap" >> {
+    val (obj, hm) = genLog()
+    obj must_== materialize[Log](hm)
+
+    val (obj2, hm2) = genLog(with_id=false)
+    obj2 must_== materialize[Log](hm2)
   }
 }

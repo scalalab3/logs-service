@@ -33,8 +33,8 @@ object LogsServiceBuild extends Build {
       "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
       "org.specs2" %% "specs2-core" % specsV % "test",
       "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
-      "com.chuusai" %% "shapeless" % "2.2.4",
-      "org.scala-lang" % "scala-compiler" % "2.11.8"
+      "com.chuusai" %% "shapeless" % "2.3.0",
+      "org.scala-lang" % "scala-reflect" % "2.11.8"
     )
   }
 
