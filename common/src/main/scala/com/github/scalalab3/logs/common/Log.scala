@@ -1,4 +1,4 @@
-package com.github.scallab3.logs.common
+package com.github.scalalab3.logs.common
 
 import java.time.{Instant}
 import java.util.{UUID}
