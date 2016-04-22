@@ -1,8 +1,8 @@
-package com.github.scallab3.logs
+package com.github.scalalab3.logs
 
 import akka.actor.{ActorSystem, Actor, ActorRef, Props}
 import akka.testkit.{TestKit, ImplicitSender}
-import com.github.scallab3.logs.common._
+import com.github.scalalab3.logs.common._
 import org.specs2.matcher.{MatcherMacros}
 import org.specs2.mutable.{Specification, SpecificationLike, After}
 import scala.concurrent.duration._
@@ -17,16 +17,6 @@ abstract class AkkaSpec extends TestKit(ActorSystem())
     with MatcherMacros {
   def after = expectNoMsg
   def afterAll = system.terminate
-}
-
-
-class ExampleTest extends DefaultSpec {
-  "Test case" >> {
-    val i = 1
-    "Subcase 0" in {
-      i must_== (1)
-    }
-  }
 }
 
 
