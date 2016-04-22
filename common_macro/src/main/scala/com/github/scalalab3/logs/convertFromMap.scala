@@ -33,7 +33,7 @@ object FromMap {
     c.Expr[FromMap[T]] {
       q"""
       new FromMap[$tpe] {
-        def fromMap(map: HashMap[String, Any]): $tpe = $companion(..$fromMapParams)
+        def fromMap(map: java.util.HashMap[String, Any]): $tpe = $companion(..$fromMapParams)
       }
     """
     }
