@@ -16,6 +16,14 @@ object FromMap {
 
     import c.universe._
     val tpe = weakTypeOf[T]
+
+    // check if case class passed
+    if (!(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass)) {
+      return c.Expr[FromMap[T]]{
+        q"new FromMap[$tpe]{ def fromMap(map: HashMap[String, Any]): Option[$tpe] = None}"
+      }
+    }
+
     val companion = tpe.typeSymbol.companion
 
     val fields = tpe.decls.collectFirst {
