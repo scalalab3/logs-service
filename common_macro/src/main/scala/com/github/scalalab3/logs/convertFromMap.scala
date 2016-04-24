@@ -22,16 +22,6 @@ object FromMap {
       case m: MethodSymbol if m.isPrimaryConstructor ⇒ m
     }.get.paramLists.head
 
-    implicit class HmOption(hm:HashMap[String, Any]){
-      def get(what:String):Option[T] = {
-        None
-      }
-    }
-
-    implicit def anyToSome[B](a:B) = {
-      Some(a)
-    }
-
     val fromMapParams = fields.map { field =>
       val name = field.name.toTermName
       val decoded = name.decodedName.toString
