@@ -21,8 +21,7 @@ class Test extends Specification {
   def genLog(with_id:Boolean=true) = {
     val id = if (with_id) Some(java.util.UUID.randomUUID) else None
     val timestamp = java.time.Instant.now()
-    val hm:HM = Map(
-      "id" -> id,
+    val tmp = Map[String, Any](
       "level" -> 0,
       "env" -> "test",
       "name" -> "test name",
@@ -30,6 +29,11 @@ class Test extends Specification {
       "message" -> "test message",
       "cause" -> "",
       "stackTrace" -> "")
+
+    val hm:HM = id match {
+      case None => tmp
+      case Some(realId) => tmp + ("id" -> realId)
+    }
 
     val log = Log(
       id=id,

@@ -1,27 +1,32 @@
 package com.github.scalalab3.logs.storage
 
 import java.util.HashMap
-import shapeless._, labelled.FieldType, ops.hlist.LeftFolder
+import shapeless._, record._
 
 
 object ToMap {
+  case class Empty()
 
-  object fill extends Poly {
-    implicit def hnil = use((out:HashMap[String, Any], l: HNil) => out)
-    implicit def hlist[K <:Symbol, V](implicit wit: Witness.Aux[K]) =
-      use((out:HashMap[String, Any], l: FieldType[K, V]) => {
-      out.put(wit.value.name, l)
-      out
-    })
+  implicit def mapToHashMap[A, B](m: Map[A, B]): HashMap[A, B] = {
+    val out:HashMap[A, B] = new HashMap()
+    m.foreach(kv => out.put(kv._1, kv._2))
+    out
   }
-  implicit def toHashMap[A, L <: HList](a: A)
+
+  implicit def toHashMap[T, R <: HList, K <: Symbol, V](a: T)
     (implicit
-      gen: LabelledGeneric.Aux[A, L],
-      lf: LeftFolder.Aux[L, HashMap[String, Any], fill.type, HashMap[String, Any]]
+      lgen: LabelledGeneric.Aux[T, R],
+      toMap: ops.record.ToMap.Aux[R, K, V]
     ): HashMap[String, Any] = {
 
-    val out:HashMap[String, Any] = new HashMap()
-    val b = gen.to(a)
-    b.foldLeft(out)(fill)
+    val gen = LabelledGeneric[T]
+    gen.to(a).toMap map {
+      case (k, None) => k.toString -> Empty()
+      case (k, Some(v)) => k.toString.tail -> v
+      case (k, v) => k.toString.tail -> v
+    } filter {
+      case (k:String, v:Empty) => false
+      case _ => true
+    }
   }
 }
