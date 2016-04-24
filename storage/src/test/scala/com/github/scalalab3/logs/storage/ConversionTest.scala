@@ -80,21 +80,21 @@ case class TestClass3(a: String, b: String)
 
 class UnpackTest extends Test {
 
-  def materialize[T: FromMap](map: HM) =
+  def materialize[T: FromMap](map: HM):Option[T] =
     implicitly[FromMap[T]].fromMap(map)
 
   "from HM to TestClass3" >> {
     val obj = TestClass3("asdf", "fdsa")
     val testHM:HM = Map("a" -> "asdf", "b" -> "fdsa")
     val testObj = materialize[TestClass3](testHM)
-    obj must_== testObj
+    Some(obj) must_== testObj
   }
 
   "Test Log from HashMap" >> {
     val (obj, hm) = genLog(Some(java.util.UUID.randomUUID))
-    obj must_== materialize[Log](hm)
+    Some(obj) must_== materialize[Log](hm)
 
     val (obj2, hm2) = genLog(None)
-    obj2 must_== materialize[Log](hm2)
+    Some(obj2) must_== materialize[Log](hm2)
   }
 }

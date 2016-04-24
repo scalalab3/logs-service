@@ -5,7 +5,7 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 trait FromMap[T] {
-  def fromMap(map: HashMap[String, Any]): T
+  def fromMap(map: HashMap[String, Any]): Option[T]
 }
 
 object FromMap {
@@ -19,25 +19,40 @@ object FromMap {
     val companion = tpe.typeSymbol.companion
 
     val fields = tpe.decls.collectFirst {
-      case m: MethodSymbol if m.isPrimaryConstructor ⇒ m
+      case m: MethodSymbol if m.isPrimaryConstructor => m
     }.get.paramLists.head
 
-    val fromMapParams = fields.map { field =>
+    val typedValues = fields.map { field =>
       val name = field.name.toTermName
       val decoded = name.decodedName.toString
       val returnType = tpe.decl(name).typeSignature
 
       decoded match {
-        case "id" => q"""(if (map.containsKey($decoded)) Some(map.get($decoded)) else None)
-            .asInstanceOf[$returnType]"""
+        case "id" => q"(if (map.containsKey($decoded)) Some(map.get($decoded)) else None).asInstanceOf[$returnType]"
         case _ => q"map.get($decoded).asInstanceOf[$returnType]"
       }
+    }
+
+    val values = fields.map { field =>
+      val name = field.name.toTermName
+      val decoded = name.decodedName.toString
+
+      decoded match {
+        case "id" => q"true"
+        case _ => q"map.get($decoded)"
+      }
+    }
+
+    val isNull = {
+      q"List(..$values).filter(_ == null ).length > 0"
     }
 
     c.Expr[FromMap[T]] {
       q"""
       new FromMap[$tpe] {
-        def fromMap(map: java.util.HashMap[String, Any]): $tpe = $companion(..$fromMapParams)
+        def fromMap(map: java.util.HashMap[String, Any]): Option[$tpe] = {
+          if ($isNull) None else Some($companion(..$typedValues))
+        }
       }
     """
     }
