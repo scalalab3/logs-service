@@ -18,8 +18,7 @@ class Test extends Specification {
     out
   }
 
-  def genLog(with_id:Boolean=true) = {
-    val id = if (with_id) Some(java.util.UUID.randomUUID) else None
+  def genLog(id: Option[java.util.UUID]) = {
     val timestamp = java.time.Instant.now()
     val tmp = Map[String, Any](
       "level" -> 0,
@@ -68,10 +67,10 @@ class ConversionTest extends Test {
   }
 
   "Test Log to HashMap" >> {
-    val (obj, hm) = genLog()
+    val (obj, hm) = genLog(Some(java.util.UUID.randomUUID))
     (obj:HM) must_== hm
 
-    val (obj2, hm2) = genLog(with_id=false)
+    val (obj2, hm2) = genLog(None)
     (obj2:HM) must_== hm2
   }
 }
@@ -92,10 +91,10 @@ class UnpackTest extends Test {
   }
 
   "Test Log from HashMap" >> {
-    val (obj, hm) = genLog()
+    val (obj, hm) = genLog(Some(java.util.UUID.randomUUID))
     obj must_== materialize[Log](hm)
 
-    val (obj2, hm2) = genLog(with_id=false)
+    val (obj2, hm2) = genLog(None)
     obj2 must_== materialize[Log](hm2)
   }
 }
