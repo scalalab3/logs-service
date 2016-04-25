@@ -7,8 +7,8 @@ import shapeless._, record._
 object ToMap {
   case class Empty()
 
-  implicit def mapToHashMap[A, B](m: Map[A, B]): HashMap[A, B] = {
-    val out:HashMap[A, B] = new HashMap()
+  implicit def mapToHashMap(m: Map[String, Any]): HashMap[String, Any] = {
+    val out:HashMap[String, Any] = new HashMap()
     m.foreach(kv => out.put(kv._1, kv._2))
     out
   }
