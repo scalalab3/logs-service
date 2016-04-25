@@ -34,7 +34,7 @@ object FromMap {
       val returnType = tpe.decl(name).typeSignature
 
       decoded match {
-        case "id" => q"(if (map.containsKey($decoded)) Some(map.get($decoded)) else None).asInstanceOf[$returnType]"
+        case "id" => q"Option(map.get($decoded)).asInstanceOf[$returnType]"
         case _ => q"map.get($decoded).asInstanceOf[$returnType]"
       }
     }
