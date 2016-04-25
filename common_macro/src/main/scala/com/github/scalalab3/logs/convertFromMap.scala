@@ -19,9 +19,7 @@ object FromMap {
 
     // check if case class passed
     if (!(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass)) {
-      return c.Expr[FromMap[T]]{
-        q"new FromMap[$tpe]{ def fromMap(map: HashMap[String, Any]): Option[$tpe] = None}"
-      }
+      c.abort(c.enclosingPosition, "Not a case class")
     }
 
     val companion = tpe.typeSymbol.companion

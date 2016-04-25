@@ -98,14 +98,6 @@ class UnpackTest extends Test {
     Some(obj2) must_== materialize[Log](hm2)
   }
 
-  "Test non-case class" >> {
-    class U(a:Int)
-    val obj = new U(1)
-    val hm:HM = Map("a" -> 1)
-    val testObj = materialize[U](hm)
-    testObj must_== None
-  }
-
   "Test Lot from partial HashMap" >> {
     val (obj, hm) = genLog(Some(java.util.UUID.randomUUID))
     hm.remove("level")
