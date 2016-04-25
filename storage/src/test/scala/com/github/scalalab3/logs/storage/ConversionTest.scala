@@ -20,7 +20,7 @@ class Test extends Specification {
 
   def genLog(id: Option[java.util.UUID]) = {
     val timestamp = java.time.Instant.now()
-    val tmp = Map[String, Any](
+    val map:HM = Map[String, Any](
       "level" -> 0,
       "env" -> "test",
       "name" -> "test name",
@@ -29,10 +29,7 @@ class Test extends Specification {
       "cause" -> "",
       "stackTrace" -> "")
 
-    val hm:HM = id match {
-      case None => tmp
-      case Some(realId) => tmp + ("id" -> realId)
-    }
+    id.foreach(map.put("id", _))
 
     val log = Log(
       id=id,
@@ -43,7 +40,7 @@ class Test extends Specification {
       message="test message",
       cause="",
       stackTrace="")
-    (log, hm)
+    (log, map)
   }
 }
 
