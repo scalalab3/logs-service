@@ -20,13 +20,10 @@ object ToMap {
     ): HashMap[String, Any] = {
 
     val gen = LabelledGeneric[T]
-    gen.to(a).toMap map {
-      case (k, None) => k.toString -> Empty()
-      case (k, Some(v)) => k.toString.tail -> v
-      case (k, v) => k.toString.tail -> v
-    } filter {
-      case (k:String, v:Empty) => false
-      case _ => true
+    gen.to(a).toMap.filter { case (k, None) => false; case _ => true }
+    .map {
+      case (k, Some(v)) => k.name -> v
+      case (k, v) => k.name -> v
     }
   }
 }
