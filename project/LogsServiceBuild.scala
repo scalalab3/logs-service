@@ -18,6 +18,7 @@ object LogsServiceBuild extends Build {
       "-Ywarn-numeric-widen",
       "-Xfuture",
       "-Xlint"
+      // ,"-Ymacro-debug-lite"
     ),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     resolvers += Resolver.sonatypeRepo("releases"),
@@ -31,7 +32,9 @@ object LogsServiceBuild extends Build {
       "com.typesafe.akka" %% "akka-actor" % akkaV,
       "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
       "org.specs2" %% "specs2-core" % specsV % "test",
-      "org.specs2" %% "specs2-matcher-extra" % specsV % "test"
+      "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
+      "com.chuusai" %% "shapeless" % "2.3.0",
+      "org.scala-lang" % "scala-reflect" % "2.11.8"
     )
   }
 
@@ -50,16 +53,20 @@ object LogsServiceBuild extends Build {
     )
   }
 
+  lazy val common_macro = makeProject("common_macro")
+
   lazy val common = makeProject("common")
+    .dependsOn(common_macro)
 
   lazy val core = makeProject("core")
     .dependsOn(common)
+
 
   lazy val parser = makeProject("parser")
     .dependsOn(common)
 
   lazy val storage = makeProject("storage")
-    .dependsOn(common)
+    .dependsOn(common, common_macro)
 
   lazy val ui = makeProject("ui")
     .dependsOn(common)
@@ -68,5 +75,5 @@ object LogsServiceBuild extends Build {
     .dependsOn(common)
 
   lazy val main = makeProject("main", Some("."))
-    .aggregate(common, core, parser, storage, ui, analytics)
+    .aggregate(common, common_macro, core, parser, storage, ui, analytics)
 }
