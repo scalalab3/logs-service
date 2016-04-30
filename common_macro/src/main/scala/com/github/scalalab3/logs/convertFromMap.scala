@@ -28,36 +28,37 @@ object FromMap {
       case m: MethodSymbol if m.isPrimaryConstructor => m
     }.get.paramLists.head
 
-    val typedValues = fields.map { field =>
-      val name = field.name.toTermName
-      val decoded = name.decodedName.toString
-      val returnType = tpe.decl(name).typeSignature
-
-      decoded match {
-        case "id" => q"Option(map.get($decoded)).asInstanceOf[$returnType]"
-        case _ => q"map.get($decoded).asInstanceOf[$returnType]"
-      }
-    }
-
-    val values = fields.map { field =>
+    val assignValues = fields.map { field =>
       val name = field.name.toTermName
       val decoded = name.decodedName.toString
 
-      decoded match {
-        case "id" => q"true"
+      val ret = decoded match {
+        case "id" => q"Option(map.get($decoded))"
         case _ => q"map.get($decoded)"
       }
+      q"val $name = $ret"
     }
 
-    val isNull = {
-      q"List(..$values).filter(_ == null ).length > 0"
+    val names = fields.map { field =>
+      val name = field.name.toTermName
+      q"$name"
+    }
+
+    val typed = fields.map { field =>
+      val name = field.name.toTermName
+      val returnType = tpe.decl(name).typeSignature
+      q"$name.asInstanceOf[$returnType]"
     }
 
     c.Expr[FromMap[T]] {
       q"""
       new FromMap[$tpe] {
         def fromMap(map: java.util.HashMap[String, Any]): Option[$tpe] = {
-          if ($isNull) None else Some($companion(..$typedValues))
+          ..$assignValues
+          if ($names.contains(null))
+            None
+          else
+            Some($companion(..$typed))
         }
       }
     """
