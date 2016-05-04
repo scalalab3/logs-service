@@ -6,6 +6,11 @@ import org.specs2.mutable.Specification
 
 class QueryParserImplTest extends Specification {
 
+  implicit class QueryOp(left: Query) {
+    def or(right: Query)  = Or(left, right)
+    def and(right: Query) = And(left, right)
+  }
+
   "QueryParserImpl should" >> {
 
     val parser = new QueryParserImpl[Log]
@@ -17,11 +22,11 @@ class QueryParserImplTest extends Specification {
 
     "be able to return combination of simple queries" in {
       parser.parse("id = '123' AND env != 'some val'") must beSuccessfulTry.withValue(
-        And(List(Eq("id", "123"), Neq("env", "some val")))
+        Eq("id", "123") and Neq("env", "some val")
       )
 
       parser.parse("name contains 'any' OR cause contains 'null'") must beSuccessfulTry.withValue(
-        Or(List(Contains("name", "any"), Contains("cause", "null")))
+        Contains("name", "any") or Contains("cause", "null")
       )
     }
 
@@ -31,11 +36,11 @@ class QueryParserImplTest extends Specification {
 
     "be able to return complex query" in {
       parser.parse("name != 'log' AND env contains 'prod' OR level = '1'") must beSuccessfulTry.withValue(
-        Or(List(And(List(Neq("name", "log"), Contains("env", "prod"))), Eq("level", "1")))
+        (Neq("name", "log") and Contains("env", "prod")) or Eq("level", "1")
       )
 
       parser.parse("level = '0' OR message contains 'zzz' AND name != 'ff'") must beSuccessfulTry.withValue(
-        Or(List(Eq("level", "0"), And(List(Contains("message", "zzz"), Neq("name", "ff")))))
+        Eq("level", "0") or (Contains("message", "zzz") and Neq("name", "ff"))
       )
     }
 

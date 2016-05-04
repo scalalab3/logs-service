@@ -4,6 +4,7 @@ import com.codecommit.gll
 import com.codecommit.gll.RegexParsers
 import com.github.scalalab3.logs.common.query._
 
+import scala.language.postfixOps
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
@@ -24,8 +25,8 @@ class QueryParserImpl[A : TypeTag] extends QueryParser with RegexParsers {
     )
 
   lazy val boolQ: Parser[Query] = (
-        expr ~ "AND" ~ expr ^^ { (e1, _, e2) => And(List(e1, e2)) }
-      | expr ~ "OR" ~ expr  ^^ { (e1, _, e2) => Or(List(e1, e2)) }
+        expr ~ "AND" ~ expr ^^ { (e1, _, e2) => And(e1, e2) }
+      | expr ~ "OR" ~ expr  ^^ { (e1, _, e2) => Or(e1, e2) }
     )
 
   lazy val field: Parser[String] = classFields.reduce(_ + "|" + _).r ^^ { s => s }
@@ -38,13 +39,13 @@ class QueryParserImpl[A : TypeTag] extends QueryParser with RegexParsers {
   // %%
 
   override def parse(query: String): Try[Query] = {
-    val results = expr (query)
+    val queryStream = for {
+      gll.Success(q, _) <- expr(query)
+    } yield q
 
-    if (results.exists(_.isInstanceOf[gll.Success[Query]])) {
-      val qs = for (gll.Success(obj, _) <- results) yield obj
-      Success(qs.head)
-    } else {
-      fail
+    queryStream headOption match {
+      case Some(q) => Success(q)
+      case None    => fail
     }
   }
 }
