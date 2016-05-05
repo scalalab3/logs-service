@@ -34,7 +34,8 @@ object LogsServiceBuild extends Build {
       "org.specs2" %% "specs2-core" % specsV % "test",
       "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
       "com.chuusai" %% "shapeless" % "2.3.0",
-      "org.scala-lang" % "scala-reflect" % "2.11.8"
+      "org.scala-lang" % "scala-reflect" % "2.11.8",
+      "com.codecommit" %% "gll-combinators" % "2.2"
     )
   }
 
