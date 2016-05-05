@@ -4,11 +4,17 @@ import java.util.HashMap
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
+
 trait FromMap[T] {
+  implicit class HashMapExt(x: HashMap[String, Any]) {
+    def safeGet(k: String) = Option(x.get(k))
+  }
+
   def fromMap(map: HashMap[String, Any]): Option[T]
 }
 
 object FromMap {
+
   implicit def materializeMappable[T]: FromMap[T] = macro materializeMappableImpl[T]
 
   def materializeMappableImpl[T: c.WeakTypeTag](c: whitebox.Context):
@@ -28,36 +34,28 @@ object FromMap {
       case m: MethodSymbol if m.isPrimaryConstructor => m
     }.get.paramLists.head
 
-    val typedValues = fields.map { field =>
+    val names = fields.map { field =>
+      val name = field.name.toTermName
+      q"$name"
+    }
+
+    val forLoop = fields.map { field =>
       val name = field.name.toTermName
       val decoded = name.decodedName.toString
       val returnType = tpe.decl(name).typeSignature
 
-      decoded match {
-        case "id" => q"Option(map.get($decoded)).asInstanceOf[$returnType]"
-        case _ => q"map.get($decoded).asInstanceOf[$returnType]"
+      val ret = decoded match {
+        case "id" => q"Option(map.safeGet($decoded))"
+        case _ => q"map.safeGet($decoded)"
       }
-    }
-
-    val values = fields.map { field =>
-      val name = field.name.toTermName
-      val decoded = name.decodedName.toString
-
-      decoded match {
-        case "id" => q"true"
-        case _ => q"map.get($decoded)"
-      }
-    }
-
-    val isNull = {
-      q"List(..$values).filter(_ == null ).length > 0"
+      fq"$name <- $ret.map(_.asInstanceOf[$returnType])"
     }
 
     c.Expr[FromMap[T]] {
       q"""
       new FromMap[$tpe] {
         def fromMap(map: java.util.HashMap[String, Any]): Option[$tpe] = {
-          if ($isNull) None else Some($companion(..$typedValues))
+          for (..$forLoop) yield $companion(..$names)
         }
       }
     """
