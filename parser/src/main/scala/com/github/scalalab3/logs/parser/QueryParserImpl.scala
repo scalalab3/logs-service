@@ -2,7 +2,7 @@ package com.github.scalalab3.logs.parser
 
 import com.codecommit.gll
 import com.codecommit.gll.RegexParsers
-import com.github.scalalab3.logs.common.query._
+import com.github.scalalab3.logs.query._
 
 import scala.language.postfixOps
 import scala.reflect.runtime.universe._

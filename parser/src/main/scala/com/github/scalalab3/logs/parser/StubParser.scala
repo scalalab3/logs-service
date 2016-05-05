@@ -1,6 +1,6 @@
 package com.github.scalalab3.logs.parser
 
-import com.github.scalalab3.logs.common.query._
+import com.github.scalalab3.logs.query._
 
 import scala.util.{Failure, Success, Try}
 

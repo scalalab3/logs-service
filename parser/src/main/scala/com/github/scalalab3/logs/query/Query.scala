@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.common.query
+package com.github.scalalab3.logs.query
 
 sealed trait Query
 

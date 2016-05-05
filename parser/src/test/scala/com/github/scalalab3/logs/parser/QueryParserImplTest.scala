@@ -1,7 +1,7 @@
 package com.github.scalalab3.logs.parser
 
 import com.github.scalalab3.logs.common.Log
-import com.github.scalalab3.logs.common.query._
+import com.github.scalalab3.logs.query._
 import org.specs2.mutable.Specification
 
 class QueryParserImplTest extends Specification {
