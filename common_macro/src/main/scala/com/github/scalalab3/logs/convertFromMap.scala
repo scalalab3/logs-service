@@ -11,6 +11,10 @@ trait FromMap[T] {
 object FromMap {
   implicit def materializeMappable[T]: FromMap[T] = macro materializeMappableImpl[T]
 
+  implicit class HashMapExt(x: HashMap[_, _]) {
+    def safeGet[T](k: String) = Option(x.get(k))
+  }
+
   def materializeMappableImpl[T: c.WeakTypeTag](c: whitebox.Context):
       c.Expr[FromMap[T]] = {
 
@@ -33,8 +37,8 @@ object FromMap {
       val decoded = name.decodedName.toString
 
       val ret = decoded match {
-        case "id" => q"Option(map.get($decoded))"
-        case _ => q"map.get($decoded)"
+        case "id" => q"Option(map.safeGet($decoded))"
+        case _ => q"map.safeGet($decoded)"
       }
       q"val $name = $ret"
     }
@@ -44,21 +48,36 @@ object FromMap {
       q"$name"
     }
 
-    val typed = fields.map { field =>
+    val forLoop = fields.map { field =>
+      val name = field.name.toTermName
+      val decoded = name.decodedName.toString
+      val returnType = tpe.decl(name).typeSignature
+
+      val ret = decoded match {
+        case "id" => q"Option(map.safeGet($decoded))"
+        case _ => q"map.safeGet($decoded)"
+      }
+      fq"$name <- $ret"
+    }
+
+    val namesInst = fields.map { field =>
       val name = field.name.toTermName
       val returnType = tpe.decl(name).typeSignature
       q"$name.asInstanceOf[$returnType]"
     }
 
+    println(q"""
+      new FromMap[$tpe] {
+        def fromMap(map: java.util.HashMap[String, Any]): Option[$tpe] = {
+          for (..$forLoop) yield $companion(..$namesInst)
+        }
+      }
+    """)
     c.Expr[FromMap[T]] {
       q"""
       new FromMap[$tpe] {
         def fromMap(map: java.util.HashMap[String, Any]): Option[$tpe] = {
-          ..$assignValues
-          if ($names.contains(null))
-            None
-          else
-            Some($companion(..$typed))
+          for (..$forLoop) yield $companion(..$namesInst)
         }
       }
     """
