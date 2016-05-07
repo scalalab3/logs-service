@@ -42,14 +42,14 @@ object LogsServiceBuild extends Build {
   val commonSettings = baseSettings ++ Seq(
     organization := "com.github.scalalab3",
     version := "0.0.1",
-    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+    licenses +=("MIT", url("http://opensource.org/licenses/MIT")),
     libraryDependencies ++= baseDeps
   )
 
-  def makeProject(name:String, path:Option[String] = None) = {
+  def makeProject(name: String, path: Option[String] = None) = {
     Project(
-      id=name,
-      base=file(path getOrElse name),
+      id = name,
+      base = file(path getOrElse name),
       settings = commonSettings
     )
   }
@@ -61,7 +61,6 @@ object LogsServiceBuild extends Build {
 
   lazy val core = makeProject("core")
     .dependsOn(common)
-
 
   lazy val parser = makeProject("parser")
     .dependsOn(common)

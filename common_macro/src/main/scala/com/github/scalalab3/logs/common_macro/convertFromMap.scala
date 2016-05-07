@@ -1,16 +1,16 @@
 package com.github.scalalab3.logs.common_macro
 
-import java.util.HashMap
+import java.util
+
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
-
 trait FromMap[T] {
-  implicit class HashMapExt(x: HashMap[String, Any]) {
+  implicit class HashMapExt(x: util.HashMap[String, Any]) {
     def safeGet(k: String) = Option(x.get(k))
   }
 
-  def fromMap(map: HashMap[String, Any]): Option[T]
+  def fromMap(map: util.HashMap[String, Any]): Option[T]
 }
 
 object FromMap {
