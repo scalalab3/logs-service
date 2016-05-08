@@ -1,6 +1,5 @@
 package com.github.scalalab3.logs.parser
 
-import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.query._
 import org.specs2.mutable.Specification
 
@@ -13,7 +12,7 @@ class QueryParserImplTest extends Specification {
 
   "QueryParserImpl should" >> {
 
-    val parser = new QueryParserImpl[Log]
+    val parser = QueryParserImpl
 
     "be able to return simple query" in {
       parser.parse("message contains 'is empty'") must beSuccessfulTry.withValue(Contains("message", "is empty"))

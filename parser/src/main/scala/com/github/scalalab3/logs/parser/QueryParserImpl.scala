@@ -2,15 +2,16 @@ package com.github.scalalab3.logs.parser
 
 import com.codecommit.gll
 import com.codecommit.gll.RegexParsers
+import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.query._
 
 import scala.language.postfixOps
 import scala.reflect.runtime.universe._
 import scala.util.{Failure, Success, Try}
 
-class QueryParserImpl[A : TypeTag] extends QueryParser with RegexParsers {
+object QueryParserImpl extends QueryParser with RegexParsers {
 
-  private def classFields = typeOf[A].members.collect {
+  private def classFields = typeOf[Log].members.collect {
     case m: MethodSymbol if m.isCaseAccessor => m.name.toString
   }.toList
 

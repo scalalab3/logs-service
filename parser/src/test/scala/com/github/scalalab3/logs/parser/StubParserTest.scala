@@ -3,7 +3,6 @@ package com.github.scalalab3.logs.parser
 import com.github.scalalab3.logs.query.Eq
 import org.specs2.mutable.Specification
 
-
 class StubParserTest extends Specification {
   "Stub Parser should" >> {
 
