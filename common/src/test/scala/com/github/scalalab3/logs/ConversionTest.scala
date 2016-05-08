@@ -1,10 +1,10 @@
-package com.github.scalalab3.logs.storage
+package com.github.scalalab3.logs
 
 import java.util
 
 import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.common_macro.FromMap
-import com.github.scalalab3.logs.storage.ToMap._
+import com.github.scalalab3.logs.common_macro.ToMap._
 import org.specs2.mutable.Specification
 
 case class TestClass(name_a: String, name_b: Int)
@@ -12,16 +12,11 @@ case class TestClass(name_a: String, name_b: Int)
 case class TestClass2(a: String, b: Int, c: Double)
 
 class Test extends Specification {
+
   type HM = util.HashMap[String, Any]
 
-  implicit def mapToHashMap[A, B](m: Map[A, B]): util.HashMap[A, B] = {
-    val out: util.HashMap[A, B] = new util.HashMap()
-    m.foreach(kv => out.put(kv._1, kv._2))
-    out
-  }
-
-  def genLog(id: Option[java.util.UUID]) = {
-    val timestamp = java.time.Instant.now()
+  def genLog(id: Option[java.util.UUID] = Some(java.util.UUID.randomUUID)) = {
+    val timestamp = java.time.OffsetDateTime.now()
     val map: HM = Map[String, Any](
       "level" -> 0,
       "env" -> "test",
@@ -50,28 +45,28 @@ class ConversionTest extends Test {
 
   "TestClass to HashMap" >> {
     val testObj = TestClass(name_a = "a", name_b = 1)
-    val shouldBe: util.HashMap[String, Any] = Map("name_a" -> "a", "name_b" -> 1)
+    val shouldBe: HM = Map("name_a" -> "a", "name_b" -> 1)
 
-    (testObj: HM) must_== shouldBe
+    toHashMap(testObj) must_== shouldBe
 
     val testObj2 = TestClass(name_a = "a", name_b = 1)
-    val shouldBe2: util.HashMap[String, Any] = Map("name_a" -> "a", "name_b" -> 1)
+    val shouldBe2: HM = Map("name_a" -> "a", "name_b" -> 1)
 
-    (testObj2: HM) must_== shouldBe2
+    toHashMap(testObj2) must_== shouldBe2
   }
 
   "TestClass2 to HashMap" >> {
     val testObj = TestClass2(a = "A", b = 0, c = 2.0)
     val shouldBe: HM = Map("a" -> "A", "b" -> 0, "c" -> 2.0)
-    (testObj: HM) must_== shouldBe
+    toHashMap(testObj) must_== shouldBe
   }
 
   "Test Log to HashMap" >> {
-    val (obj, hm) = genLog(Some(java.util.UUID.randomUUID))
-    (obj: HM) must_== hm
+    val (obj, hm) = genLog()
+    toHashMap(obj) must_== hm
 
     val (obj2, hm2) = genLog(None)
-    (obj2: HM) must_== hm2
+    toHashMap(obj2) must_== hm2
   }
 }
 
@@ -79,8 +74,7 @@ case class TestClass3(a: String, b: String)
 
 class UnpackTest extends Test {
 
-  def materialize[T: FromMap](map: HM): Option[T] =
-    implicitly[FromMap[T]].fromMap(map)
+  def materialize[T: FromMap](map: HM): Option[T] = implicitly[FromMap[T]].fromMap(map)
 
   "HashMap to TestClass3" >> {
     val obj = TestClass3("asdf", "fdsa")
@@ -90,7 +84,7 @@ class UnpackTest extends Test {
   }
 
   "Test Log from HashMap" >> {
-    val (obj, hm) = genLog(Some(java.util.UUID.randomUUID))
+    val (obj, hm) = genLog()
     Some(obj) must_== materialize[Log](hm)
 
     val (obj2, hm2) = genLog(None)
@@ -98,7 +92,7 @@ class UnpackTest extends Test {
   }
 
   "Test Log from partial HashMap" >> {
-    val (obj, hm) = genLog(Some(java.util.UUID.randomUUID))
+    val (obj, hm) = genLog()
     hm.remove("level")
     materialize[Log](hm) must_== None
 

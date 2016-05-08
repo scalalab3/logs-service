@@ -34,7 +34,7 @@ class ActorTest extends AkkaSpec {
       level = 1,
       env = "",
       name = "test",
-      timestamp = java.time.Instant.now,
+      timestamp = java.time.OffsetDateTime.now,
       message = "test message",
       cause = "",
       stackTrace = ""

@@ -35,7 +35,10 @@ object LogsServiceBuild extends Build {
       "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
       "com.chuusai" %% "shapeless" % "2.3.0",
       "org.scala-lang" % "scala-reflect" % "2.11.8",
-      "com.codecommit" %% "gll-combinators" % "2.2"
+      "com.codecommit" %% "gll-combinators" % "2.2",
+      "com.typesafe" % "config" % "1.3.0",
+      "com.rethinkdb" % "rethinkdb-driver" % "2.3.0",
+      "org.slf4j" % "slf4j-log4j12" % "1.7.21"
     )
   }
 
@@ -66,7 +69,7 @@ object LogsServiceBuild extends Build {
     .dependsOn(common)
 
   lazy val storage = makeProject("storage")
-    .dependsOn(common, common_macro)
+    .dependsOn(parser, common_macro)
 
   lazy val ui = makeProject("ui")
     .dependsOn(common)
