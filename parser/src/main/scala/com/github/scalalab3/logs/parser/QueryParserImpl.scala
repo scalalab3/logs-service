@@ -1,28 +1,36 @@
 package com.github.scalalab3.logs.parser
 
+import java.time.OffsetDateTime
+
 import com.codecommit.gll
 import com.codecommit.gll.RegexParsers
-import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.query._
 
 import scala.language.postfixOps
-import scala.reflect.runtime.universe._
+import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 object QueryParserImpl extends QueryParser with RegexParsers {
 
-  private def classFields = typeOf[Log].members.collect {
-    case m: MethodSymbol if m.isCaseAccessor => m.name.toString
-  }.toList
+  // another way ??
+  private val stringFs = List("id", "name", "env", "message", "cause", "stackTrace")
+  private val intFs = List("level")
+  private val dateFs = List("timestamp")
+
+  private val stringVal = "\\'([ a-zA-Z0-9\\-\\.\\+\\:\\,\\;]*)\\'".r
 
   // %%
 
   lazy val expr = boolQ | mapQ
 
   lazy val mapQ: Parser[Query] = (
-        field ~ "=" ~ value        ^^ { (e1, _, e2) => Eq(e1, e2) }
-      | field ~ "!=" ~ value       ^^ { (e1, _, e2) => Neq(e1, e2) }
-      | field ~ "contains" ~ value ^^ { (e1, _, e2) => Contains(e1, e2) }
+        stringFs ~ "=" ~ stringVal        ^^ { (e1, _, e2) => Eq(e1, e2) }
+      | stringFs ~ "!=" ~ stringVal       ^^ { (e1, _, e2) => Neq(e1, e2) }
+      | stringFs ~ "contains" ~ stringVal ^^ { (e1, _, e2) => Contains(e1, e2) }
+      | intFs ~ "=" ~ stringVal           ^^ { (e1, _, e2) => Eq(e1, e2.toInt) }
+      | intFs ~ "!=" ~ stringVal          ^^ { (e1, _, e2) => Neq(e1, e2.toInt) }
+      | dateFs ~ "=" ~ stringVal          ^^ { (e1, _, e2) => Eq(e1, OffsetDateTime.parse(e2)) }
+      | dateFs ~ "!=" ~ stringVal         ^^ { (e1, _, e2) => Neq(e1, OffsetDateTime.parse(e2)) }
     )
 
   lazy val boolQ: Parser[Query] = (
@@ -30,23 +38,28 @@ object QueryParserImpl extends QueryParser with RegexParsers {
       | expr ~ "OR" ~ expr  ^^ { (e1, _, e2) => Or(e1, e2) }
     )
 
-  lazy val field: Parser[String] = classFields.reduce(_ + "|" + _).r ^^ { s => s }
-
-  val valueReg = "\\'([a-zA-Z0-9 -]*)\\'".r
-  lazy val value: Parser[String] = valueReg ^^ { case valueReg(s) => s }
+  private implicit def toParser(sq: Seq[String]): Parser[String] = sq.reduce(_ + "|" + _).r ^^ { f => f }
+  private implicit def toParser(regex: Regex): Parser[String] = regex ^^ { case regex(s) => s }
 
   lazy val fail = Failure(new RuntimeException("Wrong query"))
 
   // %%
 
   override def parse(query: String): Try[Query] = {
-    val queryStream = for {
-      gll.Success(q, _) <- expr(query)
-    } yield q
 
-    queryStream headOption match {
-      case Some(q) => Success(q)
-      case None    => fail
+    Try(expr(query)) match {
+      case Success(stream) =>
+
+        val queryStream = for {
+          gll.Success(q, _) <- stream
+        } yield q
+
+        queryStream headOption match {
+          case Some(q) => Success(q)
+          case None => fail
+        }
+
+      case Failure(_) => fail
     }
   }
 }

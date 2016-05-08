@@ -35,11 +35,11 @@ class QueryParserImplTest extends Specification {
 
     "be able to return complex query" in {
       parser.parse("name != 'log' AND env contains 'prod' OR level = '1'") must beSuccessfulTry.withValue(
-        (Neq("name", "log") and Contains("env", "prod")) or Eq("level", "1")
+        (Neq("name", "log") and Contains("env", "prod")) or Eq("level", 1)
       )
 
       parser.parse("level = '0' OR message contains 'zzz' AND name != 'ff'") must beSuccessfulTry.withValue(
-        Eq("level", "0") or (Contains("message", "zzz") and Neq("name", "ff"))
+        Eq("level", 0) or (Contains("message", "zzz") and Neq("name", "ff"))
       )
     }
 
