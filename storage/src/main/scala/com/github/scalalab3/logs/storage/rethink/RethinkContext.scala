@@ -21,7 +21,7 @@ object RethinkContext {
   def table = r.dbSafe(dbName).tableSafe(tableName)
 
   def dropWork(): Unit = {
-    r.tableDrop(tableName).perform()
+    r.dbSafe(dbName).tableDrop(tableName).perform()
     r.dbDrop(dbName).perform()
   }
 }
