@@ -11,22 +11,23 @@ import org.specs2.specification.AfterAll
 class LogStorageComponentImplTest extends Specification with AfterAll {
 
   def uuid = Some(UUID.randomUUID())
+  def now = OffsetDateTime.now()
 
-  val log1 = Log(id = uuid, level = 0, env = "test", name = "log1", timestamp = OffsetDateTime.now().minusMinutes(10),
+  val log1 = Log(id = uuid, level = 0, env = "test", name = "log1", timestamp = now.minusMinutes(10),
     message = "message1", cause = "unknown", stackTrace = "some cause")
 
-  val log2 = Log(id = uuid, level = 1, env = "test", name = "log2", timestamp = OffsetDateTime.now().minusMinutes(5),
+  val log2 = Log(id = uuid, level = 1, env = "test", name = "log2", timestamp = now.minusMinutes(5),
     message = "message2", cause = "empty", stackTrace = "is empty")
 
-  val log3 = Log(id = uuid, level = 1, env = "new", name = "log3", timestamp = OffsetDateTime.now().minusMinutes(1),
+  val log3 = Log(id = uuid, level = 1, env = "new", name = "log3", timestamp = now.minusMinutes(1),
     message = "message3", cause = "empty", stackTrace = "null")
 
-  val log4 = Log(id = uuid, level = 2, env = "new", name = "log4", timestamp = OffsetDateTime.now(),
+  val log4 = Log(id = uuid, level = 2, env = "new", name = "log4", timestamp = now,
     message = "message4", cause = "unknown", stackTrace = "stackTrace")
 
   val logs = List(log1, log2, log3, log4)
 
-  val storage = new LogStorageComponentImpl().logStorage
+  val storage = new LogStorageComponentImpl { }.logStorage
 
   logs foreach storage.insert
 

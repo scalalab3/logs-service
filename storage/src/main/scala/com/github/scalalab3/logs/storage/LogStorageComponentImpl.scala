@@ -10,14 +10,14 @@ import com.rethinkdb.net.Cursor
 import scala.collection.JavaConverters._
 import scala.util.Success
 
-class LogStorageComponentImpl() extends LogStorageComponent {
+trait LogStorageComponentImpl extends LogStorageComponent {
 
-  override def logStorage: LogStorage = LogStorageImpl
+  override val logStorage: LogStorage = new LogStorageImpl
 
-  object LogStorageImpl extends LogStorage {
-    val toRF1 = StringQueryToReqlFunction1
+  class LogStorageImpl extends LogStorage {
+    private val toRF1 = StringQueryToReqlFunction1
 
-    implicit val converter = new LogToRethinkConverter
+    private implicit val converter = new LogToRethinkConverter
 
     private def toMap(log: Log): HM = toHashMap(log)
     private def fromMap(map: HM): Option[Log] = implicitly[FromMap[Log]].fromMap(map)

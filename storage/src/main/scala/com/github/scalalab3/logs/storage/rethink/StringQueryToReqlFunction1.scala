@@ -8,7 +8,7 @@ import scala.util.{Failure, Success, Try}
 
 object StringQueryToReqlFunction1 extends (String => Try[ReqlFunction1]) {
 
-  val p = QueryParserImpl
+  private val p = QueryParserImpl
 
   override def apply(s: String): Try[ReqlFunction1] = {
     p.parse(s) match {

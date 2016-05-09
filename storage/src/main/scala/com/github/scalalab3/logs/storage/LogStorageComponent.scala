@@ -4,7 +4,7 @@ import com.github.scalalab3.logs.common.Log
 
 trait LogStorageComponent {
 
-  def logStorage: LogStorage
+  val logStorage: LogStorage
 
   trait LogStorage {
     def insert(log: Log): Unit
