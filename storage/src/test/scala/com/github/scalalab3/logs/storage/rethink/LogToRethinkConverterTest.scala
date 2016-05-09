@@ -4,7 +4,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 import com.github.scalalab3.logs.common.Log
-import com.github.scalalab3.logs.common_macro.{FromMap, HM}
+import com.github.scalalab3.logs.common_macro._
 import com.github.scalalab3.logs.common_macro.ToMap._
 import org.specs2.mutable.Specification
 

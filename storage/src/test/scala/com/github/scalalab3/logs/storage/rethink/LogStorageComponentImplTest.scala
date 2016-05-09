@@ -6,32 +6,35 @@ import java.util.UUID
 import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import org.specs2.mutable.Specification
-import org.specs2.specification.AfterAll
+import org.specs2.specification.{Scope, BeforeAll, AfterAll}
 
-class LogStorageComponentImplTest extends Specification with AfterAll {
+class LogStorageComponentImplTest extends Specification with BeforeAll with AfterAll {
 
   def uuid = Some(UUID.randomUUID())
+
   def now = OffsetDateTime.now()
 
-  val log1 = Log(id = uuid, level = 0, env = "test", name = "log1", timestamp = now.minusMinutes(10),
-    message = "message1", cause = "unknown", stackTrace = "some cause")
+  trait storage extends Scope {
+    val log1 = Log(id = uuid, level = 0, env = "test", name = "log1", timestamp = now.minusMinutes(10),
+      message = "message1", cause = "unknown", stackTrace = "some cause")
 
-  val log2 = Log(id = uuid, level = 1, env = "test", name = "log2", timestamp = now.minusMinutes(5),
-    message = "message2", cause = "empty", stackTrace = "is empty")
+    val log2 = Log(id = uuid, level = 1, env = "test", name = "log2", timestamp = now.minusMinutes(5),
+      message = "message2", cause = "empty", stackTrace = "is empty")
 
-  val log3 = Log(id = uuid, level = 1, env = "new", name = "log3", timestamp = now.minusMinutes(1),
-    message = "message3", cause = "empty", stackTrace = "null")
+    val log3 = Log(id = uuid, level = 1, env = "new", name = "log3", timestamp = now.minusMinutes(1),
+      message = "message3", cause = "empty", stackTrace = "null")
 
-  val log4 = Log(id = uuid, level = 2, env = "new", name = "log4", timestamp = now,
-    message = "message4", cause = "unknown", stackTrace = "stackTrace")
+    val log4 = Log(id = uuid, level = 2, env = "new", name = "log4", timestamp = now,
+      message = "message4", cause = "unknown", stackTrace = "stackTrace")
 
-  val logs = List(log1, log2, log3, log4)
+    val logs = List(log1, log2, log3, log4)
 
-  val storage = new LogStorageComponentImpl { }.logStorage
+    val storage = new LogStorageComponentImpl {}.logStorage
 
-  logs foreach storage.insert
+    logs foreach storage.insert
+  }
 
-  "LogStorageComponentImpl should" >> {
+  "LogStorageComponentImpl Test" in new storage {
 
     "count logs" >> {
       storage.count() must_== 4
@@ -53,5 +56,10 @@ class LogStorageComponentImplTest extends Specification with AfterAll {
 
   }
 
-  override def afterAll(): Unit = Rethink.dropWork()
+  override def afterAll(): Unit = {
+    RethinkContext.dropWork()
+    RethinkContext.connect.close()
+  }
+
+  override def beforeAll(): Unit = RethinkContext.dropWork()
 }

@@ -6,16 +6,12 @@ package object common_macro {
 
   type HM = util.HashMap[String, Any]
 
-  implicit val defaultConverter = new Converter[Any] {
-    override def toMap[K <: Symbol, V]: Function[(K, V), (String, Any)] = {
-      case (k, Some(v)) => k.name -> v
-      case (k, v) => k.name -> v
-    }
-
-    override def fromMap: Function[(String, Option[Any]), Option[Any]] = {
-      case ("id", opt) => Option(opt)
-      case (_, opt) => opt
-    }
+  implicit def scalaMapToJavaHashMap(m: Map[String, Any]): HM = {
+    val out: HM = new util.HashMap()
+    m.foreach(kv => out.put(kv._1, kv._2))
+    out
   }
+
+  implicit def materialize[T: FromMap](map: HM): Option[T] = implicitly[FromMap[T]].fromMap(map)
 
 }

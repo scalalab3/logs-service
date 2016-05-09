@@ -39,7 +39,7 @@ object FromMap {
     val forLoop = fields.map { field =>
       val name = field.name.toTermName
       val decoded = name.decodedName.toString
-      val returnType: c.universe.Type = tpe.decl(name).typeSignature
+      val returnType = tpe.decl(name).typeSignature
 
       val ret = q"map.safeGet($decoded).map(_.asInstanceOf[$returnType])"
 
