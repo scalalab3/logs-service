@@ -17,25 +17,38 @@ object RethinkImplicits {
     @inline def perform[A](): A = ast.run[A](c)
   }
 
+  private def ifExists(name: String, optList: Option[util.List[_]]): Boolean = {
+    val res = for {
+      list <- optList
+    } yield list.contains(name)
+    res.getOrElse(false)
+  }
+
   implicit class RethinkDBExt(r: RethinkDB)(implicit c: Connection) {
+
+    def dbList = Typeable[util.List[_]].cast(r.dbList().perform())
+
     def dbSafe(name: String): Option[Db] = {
-      for {
-        dbList <- Typeable[util.List[_]].cast(r.dbList().perform())
-      } yield {
-        if (!dbList.contains(name)) r.dbCreate(name).perform()
-        r.db(name)
-      }
+      if (!ifExists(name, dbList)) r.dbCreate(name).perform()
+      Option(r.db(name))
+    }
+
+    def dbDropSafe(name: String): Unit = {
+      if (ifExists(name, dbList)) r.dbDrop(name).perform()
     }
   }
 
   implicit class DbExt(db: Db)(implicit c: Connection) {
+
+    def tableList = Typeable[util.List[_]].cast(db.tableList().perform())
+
     def tableSafe(name: String): Option[Table] = {
-      for {
-        tableList <- Typeable[util.List[_]].cast(db.tableList().perform())
-      } yield {
-        if (!tableList.contains(name)) db.tableCreate(name).perform()
-        db.table(name)
-      }
+      if (!ifExists(name, tableList)) db.tableCreate(name).perform()
+      Option(db.table(name))
+    }
+
+    def tableDropSafe(name: String): Unit = {
+      if (ifExists(name, tableList)) db.tableDrop(name).perform()
     }
   }
 

@@ -2,15 +2,10 @@ package com.github.scalalab3.logs.parser
 
 import java.time.format.DateTimeParseException
 
-import com.github.scalalab3.logs.query._
+import com.github.scalalab3.logs.common._
 import org.specs2.mutable.Specification
 
 class QueryParserImplTest extends Specification {
-
-  implicit class QueryOp(left: Query) {
-    def or(right: Query)  = Or(left, right)
-    def and(right: Query) = And(left, right)
-  }
 
   "QueryParserImpl should" >> {
 

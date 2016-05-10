@@ -4,9 +4,8 @@ import java.time.OffsetDateTime
 
 import com.codecommit.gll
 import com.codecommit.gll.RegexParsers
-import com.github.scalalab3.logs.query._
+import com.github.scalalab3.logs.common._
 
-import scala.language.postfixOps
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
@@ -54,7 +53,7 @@ object QueryParserImpl extends QueryParser with RegexParsers {
           gll.Success(q, _) <- stream
         } yield q
 
-        queryStream headOption match {
+        queryStream.headOption match {
           case Some(q) => Success(q)
           case None => fail
         }

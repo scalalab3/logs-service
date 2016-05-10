@@ -69,7 +69,7 @@ object LogsServiceBuild extends Build {
     .dependsOn(common)
 
   lazy val storage = makeProject("storage")
-    .dependsOn(parser, common_macro)
+    .dependsOn(common, common_macro)
 
   lazy val ui = makeProject("ui")
     .dependsOn(common)

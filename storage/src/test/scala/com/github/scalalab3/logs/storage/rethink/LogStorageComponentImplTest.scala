@@ -3,61 +3,74 @@ package com.github.scalalab3.logs.storage.rethink
 import java.time.OffsetDateTime
 import java.util.UUID
 
-import com.github.scalalab3.logs.common.Log
+import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import org.specs2.mutable.Specification
 import org.specs2.specification._
 
+import scala.util.Try
+
 class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
   sequential
 
-  def uuid = Some(UUID.randomUUID())
-  def now = OffsetDateTime.now()
+  val tryRethinkContext = Try(new RethinkContext)
 
-  val log1 = Log(id = uuid, level = 0, env = "test", name = "log1", timestamp = now.minusMinutes(10),
-    message = "message1", cause = "unknown", stackTrace = "some cause")
+  "LogStorageComponentImpl Test" >> {
 
-  val log2 = Log(id = uuid, level = 1, env = "test", name = "log2", timestamp = now.minusMinutes(5),
-    message = "message2", cause = "empty", stackTrace = "is empty")
+    if (tryRethinkContext.isSuccess) {
 
-  val log3 = Log(id = uuid, level = 1, env = "new", name = "log3", timestamp = now.minusMinutes(1),
-    message = "message3", cause = "empty", stackTrace = "null")
+      implicit val r = tryRethinkContext.get
 
-  val log4 = Log(id = uuid, level = 2, env = "new", name = "log4", timestamp = now,
-    message = "message4", cause = "unknown", stackTrace = "stackTrace")
+      val log1 = Log(id = uuid(), level = 0, env = "test", name = "log1", timestamp = now(),
+        message = "message1", cause = "unknown", stackTrace = "some cause")
 
-  val logs = List(log1, log2, log3)
+      val log2 = Log(id = uuid(), level = 1, env = "test", name = "log2", timestamp = now(),
+        message = "message2", cause = "empty", stackTrace = "is empty")
 
-  val storage = new LogStorageComponentImpl {}.logStorage
+      val log3 = Log(id = uuid(), level = 1, env = "new", name = "log3", timestamp = now(),
+        message = "message3", cause = "empty", stackTrace = "null")
 
-  "LogStorageComponentImpl Test" in {
+      val log4 = Log(id = uuid(), level = 2, env = "new", name = "log4", timestamp = now().minusMinutes(1L),
+        message = "message4", cause = "unknown", stackTrace = "stackTrace")
 
-    "count logs" in {
-      logs foreach storage.insert
-      storage.count() must_== 3
-    }
+      val logs = List(log1, log2, log3)
 
-    "insert log" in {
-      storage.insert(log4)
-      storage.count() must_== 4
-    }
+      val storage = new LogStorageComponentImpl {
+        override val logStorage: LogStorage = new LogStorageImpl
+      }.logStorage
 
-    "find last N logs" in {
-      storage.lastLogs(1).size must_== 1
-      storage.lastLogs(3).size must_== 3
-      storage.lastLogs(10).size must_== 4
-    }
+      "count logs" in {
+        logs foreach storage.insert
+        storage.count() must_== 3
+      }
 
-    "filter logs" in {
-      storage.filter("name contains 'log'").size must_== 4
-      storage.filter("env contains 'test' AND cause = 'unknown'") must_== List(log1)
-      storage.filter("any") must_== Nil
-      storage.filter("level != '0' AND env = 'test' OR stackTrace = 'stackTrace'").sortBy(_.timestamp) must_== List(log2, log4)
-      storage.filter(s"timestamp = '${log4.timestamp}'") must_== List(log4)
-    }
+      "insert log" in {
+        storage.insert(log4)
+        storage.count() must_== 4
+      }
 
+      "find last N logs" in {
+        storage.lastLogs(1).size must_== 1
+        storage.lastLogs(3).size must_== 3
+        storage.lastLogs(10).size must_== 4
+      }
+
+      "filter logs" in {
+        storage.filter(Contains("name", "log")).size must_== 4
+        storage.filter(Contains("env", "test") and Eq("cause", "unknown")) must_== List(log1)
+        storage.filter(null) must_== Nil
+        storage.filter(Eq("stackTrace", "null") or null) must_== List(log3)
+        storage.filter(Neq("level", 0) and Eq("env", "test") or Contains("stackTrace", "stackTrace"))
+          .sortBy(_.timestamp) must_== List(log4, log2)
+        storage.filter(Eq("timestamp", log4.timestamp)) must_== List(log4)
+      }
+    } else "Skipped Test" >> skipped ("RethinkContext is not available in ")
   }
 
-  override def beforeAll(): Unit = RethinkContext.dropWork()
-  override def afterAll(): Unit = RethinkContext.dropWork()
+  def uuid() = Some(UUID.randomUUID())
+  def now() = OffsetDateTime.now()
+  def drop() = for (r <- tryRethinkContext) r.dropWork()
+
+  override def beforeAll(): Unit = drop()
+  override def afterAll(): Unit =  drop()
 }

@@ -6,7 +6,7 @@ import com.rethinkdb.gen.ast.Table
 import com.rethinkdb.net.Connection
 import com.typesafe.config.{Config, ConfigFactory}
 
-object RethinkContext {
+class RethinkContext {
 
   private val config: Config = ConfigFactory.load()
 
@@ -22,8 +22,8 @@ object RethinkContext {
   def table: Option[Table] = r.dbSafe(dbName).flatMap(_.tableSafe(tableName))
 
   def dropWork(): Unit = for (db <- r.dbSafe(dbName)) {
-    db.tableDrop(tableName).perform()
-    r.dbDrop(dbName).perform()
+    db.tableDropSafe(tableName)
+    r.dbDropSafe(dbName)
   }
 
 }
