@@ -9,14 +9,20 @@ import com.rethinkdb.gen.ast.{Table, Db}
 import com.rethinkdb.net.{Cursor, Connection}
 import shapeless.Typeable
 
+import scala.util.Try
+
 object RethinkImplicits {
+
+  implicit class ReqlAstExt(ast: ReqlAst)(implicit c: Connection) {
+    @inline def perform[A](): A = ast.run[A](c)
+  }
 
   implicit class RethinkDBExt(r: RethinkDB)(implicit c: Connection) {
     def dbSafe(name: String): Option[Db] = {
       for {
-        dbList <- Typeable[util.List[_]].cast(r.dbList().run(c))
+        dbList <- Typeable[util.List[_]].cast(r.dbList().perform())
       } yield {
-        if (!dbList.contains(name)) r.dbCreate(name).run(c)
+        if (!dbList.contains(name)) r.dbCreate(name).perform()
         r.db(name)
       }
     }
@@ -25,16 +31,12 @@ object RethinkImplicits {
   implicit class DbExt(db: Db)(implicit c: Connection) {
     def tableSafe(name: String): Option[Table] = {
       for {
-        tableList <- Typeable[util.List[_]].cast(db.tableList().run(c))
+        tableList <- Typeable[util.List[_]].cast(db.tableList().perform())
       } yield {
-        if (!tableList.contains(name)) db.tableCreate(name).run(c)
+        if (!tableList.contains(name)) db.tableCreate(name).perform()
         db.table(name)
       }
     }
-  }
-
-  implicit class ReqlAstExt(ast: ReqlAst)(implicit c: Connection) {
-    def perform[A](): A = ast.run[A](c)
   }
 
   implicit val typeableCursor: Typeable[Cursor[HM]] =
@@ -42,7 +44,7 @@ object RethinkImplicits {
       override def cast(t: Any): Option[Cursor[HM]] = {
         if (t == null) None
         else t match {
-          case c: Cursor[HM] => Some(c)
+          case c: Cursor[_] => Try(c.asInstanceOf[Cursor[HM]]).toOption
           case _ => None
         }
       }
