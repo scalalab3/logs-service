@@ -4,7 +4,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 import com.github.scalalab3.logs.common.Log
-import com.github.scalalab3.logs.storage.{LogStorageComponent, LogStorageComponentImpl}
+import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import org.specs2.mutable.Specification
 import org.specs2.specification._
 
@@ -28,7 +28,7 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
 
   val logs = List(log1, log2, log3)
 
-  val storage: LogStorageComponent#LogStorage = new LogStorageComponentImpl {}.logStorage
+  val storage = new LogStorageComponentImpl {}.logStorage
 
   "LogStorageComponentImpl Test" in {
 

@@ -2,6 +2,7 @@ package com.github.scalalab3.logs.storage.rethink
 
 import com.github.scalalab3.logs.storage.rethink.RethinkImplicits._
 import com.rethinkdb.RethinkDB
+import com.rethinkdb.gen.ast.Table
 import com.rethinkdb.net.Connection
 import com.typesafe.config.{Config, ConfigFactory}
 
@@ -18,10 +19,11 @@ object RethinkContext {
   val dbName = config.getString("rethink.db.name")
   val tableName = config.getString("rethink.table.name")
 
-  def table = r.dbSafe(dbName).tableSafe(tableName)
+  def table: Option[Table] = r.dbSafe(dbName).flatMap(_.tableSafe(tableName))
 
-  def dropWork(): Unit = {
-    r.dbSafe(dbName).tableDrop(tableName).perform()
+  def dropWork(): Unit = for (db <- r.dbSafe(dbName)) {
+    db.tableDrop(tableName).perform()
     r.dbDrop(dbName).perform()
   }
+
 }

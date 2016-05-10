@@ -29,16 +29,7 @@ class EchoActor extends Actor {
 class ActorTest extends AkkaSpec {
   "Test actor" >> {
     val actorRef = system.actorOf(Props(classOf[EchoActor]))
-    val msg = Log(
-      id = Some(java.util.UUID.randomUUID),
-      level = 1,
-      env = "",
-      name = "test",
-      timestamp = java.time.OffsetDateTime.now,
-      message = "test message",
-      cause = "",
-      stackTrace = ""
-    )
+    val msg = GenLog.randomLog()
 
     "test echo actor" in {
       actorRef ! msg

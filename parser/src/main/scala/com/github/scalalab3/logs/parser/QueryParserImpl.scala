@@ -59,7 +59,7 @@ object QueryParserImpl extends QueryParser with RegexParsers {
           case None => fail
         }
 
-      case Failure(_) => fail
+      case Failure(e) => Failure(e)
     }
   }
 }

@@ -15,7 +15,7 @@ object StringQueryToReqlFunction1 extends (String => Try[ReqlFunction1]) {
       case Success(a) => Try(new ReqlFunction1 {
         override def apply(arg1: ReqlExpr): AnyRef = toFunction(a)(arg1)
       })
-      case f @ Failure(_) => Failure(f.exception)
+      case Failure(e) => Failure(e)
     }
   }
 

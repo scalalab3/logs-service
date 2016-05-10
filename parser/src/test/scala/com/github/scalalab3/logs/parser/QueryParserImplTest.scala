@@ -1,5 +1,7 @@
 package com.github.scalalab3.logs.parser
 
+import java.time.format.DateTimeParseException
+
 import com.github.scalalab3.logs.query._
 import org.specs2.mutable.Specification
 
@@ -46,6 +48,7 @@ class QueryParserImplTest extends Specification {
     "be able to return error" in {
       parser.parse("id eq '123'") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
       parser.parse("name contains 'log' XOR level = '0'") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
+      parser.parse("timestamp = 'qqq'") must beFailedTry.withThrowable[DateTimeParseException]
     }
 
   }
