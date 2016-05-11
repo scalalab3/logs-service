@@ -5,7 +5,7 @@ import java.util.UUID
 import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.common_macro.Converter
 
-class LogToRethinkConverter extends Converter[Log] {
+object LogToRethinkConverter extends Converter[Log] {
   override def toMap[K <: Symbol, V]: Function[(K, V), (String, Any)] = {
     case (k, Some(v: UUID)) => k.name -> v.toString
     case (k, v: Number) => k.name -> v.longValue()

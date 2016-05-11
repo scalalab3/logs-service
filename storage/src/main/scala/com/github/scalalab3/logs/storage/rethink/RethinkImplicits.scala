@@ -9,6 +9,7 @@ import com.rethinkdb.gen.ast.{Db, ReqlFunction1, Table}
 import com.rethinkdb.net.{Connection, Cursor}
 import shapeless.Typeable
 
+import scala.collection.JavaConverters._
 import scala.util.Try
 
 object RethinkImplicits {
@@ -17,7 +18,7 @@ object RethinkImplicits {
     @inline def perform[A](): A = ast.run[A](c)
   }
 
-  private def ifExists(name: String, optList: Option[util.List[_]]): Boolean = {
+  private def isExists(name: String, optList: Option[util.List[_]]): Boolean = {
     val res = for {
       str <- Option(name)
       list <- optList
@@ -31,12 +32,12 @@ object RethinkImplicits {
     def dbList = Typeable[util.List[_]].cast(r.dbList().perform())
 
     def dbSafe(name: String): Option[Db] = {
-      if (!ifExists(name, dbList)) r.dbCreate(name).perform()
+      if (!isExists(name, dbList)) r.dbCreate(name).perform()
       Option(r.db(name))
     }
 
     def dbDropSafe(name: String): Unit = {
-      if (ifExists(name, dbList)) r.dbDrop(name).perform()
+      if (isExists(name, dbList)) r.dbDrop(name).perform()
     }
   }
 
@@ -45,12 +46,12 @@ object RethinkImplicits {
     def tableList = Typeable[util.List[_]].cast(db.tableList().perform())
 
     def tableSafe(name: String): Option[Table] = {
-      if (!ifExists(name, tableList)) db.tableCreate(name).perform()
+      if (!isExists(name, tableList)) db.tableCreate(name).perform()
       Option(db.table(name))
     }
 
     def tableDropSafe(name: String): Unit = {
-      if (ifExists(name, tableList)) db.tableDrop(name).perform()
+      if (isExists(name, tableList)) db.tableDrop(name).perform()
     }
   }
 
@@ -63,13 +64,24 @@ object RethinkImplicits {
       }
     }.toOption.flatten
 
-    def insertSafe(obj: HM): Unit = {
+    def insertSafe(map: HM): Unit = {
+      for {
+        m <- Option(map)
+      } table.insert(m).perform[Unit]()
+    }
+
+    def insertSafe[T](obj: T)(implicit toMap: T => HM): Unit = {
       for {
         o <- Option(obj)
-      } table.insert(o).perform[Unit]()
+      } table.insert(toMap(o)).perform[Unit]()
     }
 
     def countSafe(): Option[Long] = Typeable[Long].cast(table.count().perform())
+  }
+
+  implicit class CursorExt(cursor: Cursor[HM]) {
+    def toScalaList[T](implicit fromMap: HM => Option[T]): List[T] =
+      cursor.toList.asScala.flatMap(fromMap(_)).toList
   }
 
   implicit val typeableCursor: Typeable[Cursor[HM]] =

@@ -8,7 +8,7 @@ import org.specs2.specification.Scope
 
 class LogToRethinkConverterTest extends Specification {
 
-  implicit val converter = new LogToRethinkConverter
+  implicit val converter = LogToRethinkConverter
 
   def toMap(log: Log): HM = toHashMap(log)
   def fromMap(map: HM): Option[Log] = materialize[Log](map)
