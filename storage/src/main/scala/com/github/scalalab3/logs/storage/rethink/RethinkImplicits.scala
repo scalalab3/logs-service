@@ -5,8 +5,8 @@ import java.util
 import com.github.scalalab3.logs.common_macro._
 import com.rethinkdb.RethinkDB
 import com.rethinkdb.ast.ReqlAst
-import com.rethinkdb.gen.ast.{Table, Db}
-import com.rethinkdb.net.{Cursor, Connection}
+import com.rethinkdb.gen.ast.{Db, ReqlFunction1, Table}
+import com.rethinkdb.net.{Connection, Cursor}
 import shapeless.Typeable
 
 import scala.util.Try
@@ -19,8 +19,10 @@ object RethinkImplicits {
 
   private def ifExists(name: String, optList: Option[util.List[_]]): Boolean = {
     val res = for {
+      str <- Option(name)
       list <- optList
-    } yield list.contains(name)
+    } yield list.contains(str)
+
     res.getOrElse(false)
   }
 
@@ -50,6 +52,24 @@ object RethinkImplicits {
     def tableDropSafe(name: String): Unit = {
       if (ifExists(name, tableList)) db.tableDrop(name).perform()
     }
+  }
+
+  implicit class TableExt(table: Table)(implicit c: Connection) {
+    def cursorSafe(): Option[Cursor[HM]] = Typeable[Cursor[HM]].cast(table.perform())
+
+    def filterSafe(func1: ReqlFunction1): Option[Cursor[HM]] = Try {
+      Typeable[Cursor[HM]].cast {
+        table.filter(func1).perform()
+      }
+    }.toOption.flatten
+
+    def insertSafe(obj: HM): Unit = {
+      for {
+        o <- Option(obj)
+      } table.insert(o).perform[Unit]()
+    }
+
+    def countSafe(): Option[Long] = Typeable[Long].cast(table.count().perform())
   }
 
   implicit val typeableCursor: Typeable[Cursor[HM]] =

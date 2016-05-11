@@ -40,12 +40,15 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
       }.logStorage
 
       "count logs" in {
+        storage.count() must_== 0
         logs foreach storage.insert
         storage.count() must_== 3
       }
 
       "insert log" in {
         storage.insert(log4)
+        storage.count() must_== 4
+        storage.insert(null)
         storage.count() must_== 4
       }
 
@@ -59,10 +62,12 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
         storage.filter(Contains("name", "log")).size must_== 4
         storage.filter(Contains("env", "test") and Eq("cause", "unknown")) must_== List(log1)
         storage.filter(null) must_== Nil
-        storage.filter(Eq("stackTrace", "null") or null) must_== List(log3)
+        storage.filter(Or(null, Eq("stackTrace", "null"))) must_== List(log3)
+        storage.filter(And(null, null)) must_== Nil
         storage.filter(Neq("level", 0) and Eq("env", "test") or Contains("stackTrace", "stackTrace"))
           .sortBy(_.timestamp) must_== List(log4, log2)
         storage.filter(Eq("timestamp", log4.timestamp)) must_== List(log4)
+        storage.filter(Contains("timestamp", "not a number")) must_== Nil
       }
     } else "Skipped Test" >> skipped ("RethinkContext is not available in ")
   }
