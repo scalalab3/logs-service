@@ -19,24 +19,22 @@ trait LogStorageComponentImpl extends LogStorageComponent {
     private implicit val fromMap: HM => Option[Log] = materialize[Log]
 
     // impl
-    override def insert(log: Log): Unit = for {
-      l <- Option(log)
-    } r.table.foreach(_.insertSafe[Log](log))
+    override def insert(log: Log): Unit = r.table().insertSafe[Log](log)
 
-    override def count(): Long = r.table.flatMap(_.countSafe()).getOrElse(0L)
+    override def count(): Long = r.table().countSafe().getOrElse(0L)
 
     override def filter(query: Query): List[Log] = {
       val predicate = QueryToReqlFunction1(query)
-      r.table
-        .flatMap(_.filterSafe(predicate))
+      r.table()
+        .filterSafe(predicate)
         .map(_.toScalaList[Log])
         .getOrElse(Nil)
     }
 
     override def lastLogs(n: Int): List[Log] = n match {
       case v if v > 0 =>
-        r.table
-          .flatMap(_.cursorSafe())
+        r.table()
+          .cursorSafe()
           .map(_.toScalaList[Log])
           .map(_.sortBy(_.timestamp).reverse)
           .map(_.take(n))

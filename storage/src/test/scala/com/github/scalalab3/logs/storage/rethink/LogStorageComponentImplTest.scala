@@ -13,7 +13,7 @@ import scala.util.Try
 class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
   sequential
 
-  val tryRethinkContext = Try(new RethinkContext)
+  val tryRethinkContext = Try(new RethinkContext(RethinkConfig()))
 
   "LogStorageComponentImpl Test" >> {
 
@@ -74,8 +74,8 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
 
   def uuid() = Some(UUID.randomUUID())
   def now() = OffsetDateTime.now()
-  def drop() = for (r <- tryRethinkContext) r.dropWork()
+  def drop() = for (r <- tryRethinkContext) r.dbDrop()
 
   override def beforeAll(): Unit = drop()
-  override def afterAll(): Unit =  drop()
+  override def afterAll(): Unit = drop()
 }

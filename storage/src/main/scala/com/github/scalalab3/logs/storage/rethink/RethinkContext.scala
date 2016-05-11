@@ -2,28 +2,25 @@ package com.github.scalalab3.logs.storage.rethink
 
 import com.github.scalalab3.logs.storage.rethink.RethinkImplicits._
 import com.rethinkdb.RethinkDB
-import com.rethinkdb.gen.ast.Table
+import com.rethinkdb.gen.ast.{Db, Table}
 import com.rethinkdb.net.Connection
-import com.typesafe.config.{Config, ConfigFactory}
 
-class RethinkContext {
+class RethinkContext(val config: RethinkConfig) {
 
-  private val config: Config = ConfigFactory.load()
-
-  val r = RethinkDB.r
-  implicit val connect: Connection = r.connection
-    .hostname(config.getString("rethink.host"))
-    .port(config.getInt("rethink.port"))
+  val rethinkDb = RethinkDB.r
+  implicit val connect: Connection = rethinkDb.connection
+    .hostname(config.host)
+    .port(config.port)
+    .user(config.user, config.password)
     .connect
 
-  val dbName = config.getString("rethink.db.name")
-  val tableName = config.getString("rethink.table.name")
+  def db(dbName: String = config.dbName): Db = rethinkDb.dbSafe(dbName)
 
-  def table: Option[Table] = r.dbSafe(dbName).flatMap(_.tableSafe(tableName))
+  def dbDrop(dbName: String = config.dbName): Unit = rethinkDb.dbDropSafe(dbName)
 
-  def dropWork(): Unit = for (db <- r.dbSafe(dbName)) {
-    db.tableDropSafe(tableName)
-    r.dbDropSafe(dbName)
-  }
+  def table(dbName: String = config.dbName,
+            tableName: String = config.tableName): Table = rethinkDb.dbSafe(dbName).tableSafe(tableName)
 
+  def tableDrop(dbName: String = config.dbName,
+                tableName: String = config.tableName): Unit = rethinkDb.dbSafe(dbName).tableDropSafe(tableName)
 }

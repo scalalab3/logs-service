@@ -28,12 +28,11 @@ object RethinkImplicits {
   }
 
   implicit class RethinkDBExt(r: RethinkDB)(implicit c: Connection) {
-
     def dbList = Typeable[util.List[_]].cast(r.dbList().perform())
 
-    def dbSafe(name: String): Option[Db] = {
+    def dbSafe(name: String): Db = {
       if (!isExists(name, dbList)) r.dbCreate(name).perform()
-      Option(r.db(name))
+      r.db(name)
     }
 
     def dbDropSafe(name: String): Unit = {
@@ -42,12 +41,11 @@ object RethinkImplicits {
   }
 
   implicit class DbExt(db: Db)(implicit c: Connection) {
-
     def tableList = Typeable[util.List[_]].cast(db.tableList().perform())
 
-    def tableSafe(name: String): Option[Table] = {
+    def tableSafe(name: String): Table = {
       if (!isExists(name, tableList)) db.tableCreate(name).perform()
-      Option(db.table(name))
+      db.table(name)
     }
 
     def tableDropSafe(name: String): Unit = {
@@ -64,16 +62,23 @@ object RethinkImplicits {
       }
     }.toOption.flatten
 
-    def insertSafe(map: HM): Unit = {
-      for {
+    // `true` if successful insert
+    def insertSafe(map: HM): Boolean = {
+      val res = for {
         m <- Option(map)
-      } table.insert(m).perform[Unit]()
+        t <- Typeable[HM].cast(table.insert(m).perform())
+        i <- Option(t.get(inserted))
+      } yield i
+
+      res.contains(1L)
     }
 
-    def insertSafe[T](obj: T)(implicit toMap: T => HM): Unit = {
-      for {
+    def insertSafe[T](obj: T)(implicit toMap: T => HM): Boolean = {
+      val res = for {
         o <- Option(obj)
-      } table.insert(toMap(o)).perform[Unit]()
+      } yield insertSafe(toMap(o))
+
+      res.getOrElse(false)
     }
 
     def countSafe(): Option[Long] = Typeable[Long].cast(table.count().perform())
@@ -109,4 +114,19 @@ object RethinkImplicits {
 
       override def describe: String = "util.ArrayList[_]"
     }
+
+  implicit val typeableMap: Typeable[HM] =
+    new Typeable[HM] {
+      override def cast(t: Any): Option[HM] = {
+        if (t == null) None
+        else t match {
+          case c: util.Map[_, _] => Try(c.asInstanceOf[HM]).toOption
+          case _ => None
+        }
+      }
+
+      override def describe: String = "util.ArrayList[_]"
+    }
+
+  private val inserted = "inserted"
 }
