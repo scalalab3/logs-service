@@ -56,6 +56,7 @@ class QueryParserImplTest extends Specification {
       parser.parse("id eq '123'") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
       parser.parse("name contains 'log' XOR level = '0'") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
       parser.parse("1 D") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
+      parser.parse("dateTime contains 'time'") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
     }
 
   }

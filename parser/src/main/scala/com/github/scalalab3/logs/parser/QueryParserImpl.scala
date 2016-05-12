@@ -10,9 +10,9 @@ import scala.util.{Failure, Success, Try}
 
 object QueryParserImpl extends QueryParser with RegexParsers {
 
-  private val stringKey = "([a-zA-Z0-9]+)".r
-  private val stringVal = "\\'([a-zA-Z0-9 ]*)\\'".r
-  private val numVal = "([0-9]+)".r
+  private val stringKey = s"(?!${Query.timeKey})(\\w+)".r   // exclude `dateTime` field
+  private val stringVal = "\\'([\\w\\s]+)\\'".r
+  private val numVal = "(\\d+)".r
   private val timeVal = values.map(_.name.toLowerCase) ++ values.map(_.name.toUpperCase)
 
   // %%
@@ -39,7 +39,7 @@ object QueryParserImpl extends QueryParser with RegexParsers {
   private implicit def toParser(sq: Seq[String]): Parser[String] = sq.reduce(_ + "|" + _).r ^^ { f => f }
   private implicit def toParser(regex: Regex): Parser[String] = regex ^^ { case regex(s) => s }
 
-  private val fail = Failure(new RuntimeException("Wrong query"))
+  private lazy val fail = Failure(new RuntimeException("Wrong query"))
 
   // %%
 

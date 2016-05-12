@@ -20,15 +20,15 @@ object QueryToReqlFunction1 extends (Query => ReqlFunction1) {
       case q: Neq       => _.g(q.key).`ne`(q.value)
       case q: Contains  => _.g(q.key).`match`(q.value)
 
-      case q: Between   => _.g(q.timeKey)
+      case q: Between   => _.g(Query.timeKey)
         .during(toTime(q.rightPeriod), toTime(q.leftPeriod))
         .optArg(leftBound, closed)
-        .optArg(right_bound, closed)
+        .optArg(rightBound, closed)
 
-      case q: Until     => _.g(q.timeKey)
+      case q: Until     => _.g(Query.timeKey)
         .during(toTime(q.period), r.now())
         .optArg(leftBound, closed)
-        .optArg(right_bound, closed)
+        .optArg(rightBound, closed)
 
       case _            => log => r.expr(false) // solution for null value
     }
@@ -40,6 +40,6 @@ object QueryToReqlFunction1 extends (Query => ReqlFunction1) {
   }
 
   private val leftBound = "left_bound"
-  private val right_bound = "right_bound"
+  private val rightBound = "right_bound"
   private val closed = "closed"
 }
