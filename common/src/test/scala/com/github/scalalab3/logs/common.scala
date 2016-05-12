@@ -2,7 +2,8 @@ package com.github.scalalab3.logs
 
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.github.scalalab3.logs.common._
+import com.github.scalalab3.logs.common.domain.Log
+import com.github.scalalab3.logs.common.gen.GenLog
 import org.specs2.matcher.MatcherMacros
 import org.specs2.mutable.{After, Specification, SpecificationLike}
 
@@ -33,7 +34,7 @@ class ActorTest extends AkkaSpec {
 
     "test echo actor" in {
       actorRef ! msg
-      receiveOne(500 millis) match {
+      receiveOne(500.millis) match {
         case received: Log =>
           received must_== msg
           received must matchA[Log]

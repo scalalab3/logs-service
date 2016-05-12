@@ -1,13 +1,13 @@
-package com.github.scalalab3.logs.common
+package com.github.scalalab3.logs.common.domain
 
 import java.time.OffsetDateTime
 import java.util.UUID
 
 case class Log(id: Option[UUID],
-               level: Int,
+               level: String,
                env: String,
                name: String,
-               timestamp: OffsetDateTime,
+               dateTime: OffsetDateTime,
                message: String,
                cause: String,
                stackTrace: String)

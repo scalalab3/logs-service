@@ -1,8 +1,6 @@
 package com.github.scalalab3.logs.parser
 
-import java.time.format.DateTimeParseException
-
-import com.github.scalalab3.logs.common._
+import com.github.scalalab3.logs.common.domain._
 import org.specs2.mutable.Specification
 
 class QueryParserImplTest extends Specification {
@@ -32,18 +30,32 @@ class QueryParserImplTest extends Specification {
 
     "be able to return complex query" in {
       parser.parse("name != 'log' AND env contains 'prod' OR level = '1'") must beSuccessfulTry.withValue(
-        (Neq("name", "log") and Contains("env", "prod")) or Eq("level", 1)
+        (Neq("name", "log") and Contains("env", "prod")) or Eq("level", "1")
       )
 
       parser.parse("level = '0' OR message contains 'zzz' AND name != 'ff'") must beSuccessfulTry.withValue(
-        Eq("level", 0) or (Contains("message", "zzz") and Neq("name", "ff"))
+        Eq("level", "0") or (Contains("message", "zzz") and Neq("name", "ff"))
+      )
+    }
+
+    "be able to return query with time" in {
+      parser.parse("1 h .. 6 h") must beSuccessfulTry.withValue(
+        Period(1L, Hour) to Period(6L, Hour)
+      )
+
+      parser.parse("1800 sec OR name = 'log'") must beSuccessfulTry.withValue(
+        Until(Period(1800L, Sec)) or Eq("name", "log")
+      )
+
+      parser.parse("15 min .. 30 min AND message contains 'foo'") must beSuccessfulTry.withValue(
+        Period(15L, Min) to Period(30L, Min) and Contains("message", "foo")
       )
     }
 
     "be able to return error" in {
       parser.parse("id eq '123'") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
       parser.parse("name contains 'log' XOR level = '0'") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
-      parser.parse("timestamp = 'qqq'") must beFailedTry.withThrowable[DateTimeParseException]
+      parser.parse("1 D") must beFailedTry.withThrowable[RuntimeException]("Wrong query")
     }
 
   }

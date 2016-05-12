@@ -1,46 +1,45 @@
 package com.github.scalalab3.logs.parser
 
-import java.time.OffsetDateTime
-
 import com.codecommit.gll
 import com.codecommit.gll.RegexParsers
-import com.github.scalalab3.logs.common._
+import com.github.scalalab3.logs.common.domain.TimeUnit.values
+import com.github.scalalab3.logs.common.domain._
 
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 object QueryParserImpl extends QueryParser with RegexParsers {
 
-  // another way ??
-  private val stringFs = List("id", "name", "env", "message", "cause", "stackTrace")
-  private val intFs = List("level")
-  private val dateFs = List("timestamp")
-
-  private val stringVal = "\\'([ a-zA-Z0-9\\-\\.\\+\\:\\,\\;]*)\\'".r
+  private val stringKey = "([a-zA-Z0-9]+)".r
+  private val stringVal = "\\'([a-zA-Z0-9 ]*)\\'".r
+  private val numVal = "([0-9]+)".r
+  private val timeVal = values.map(_.name.toLowerCase) ++ values.map(_.name.toUpperCase)
 
   // %%
 
-  lazy val expr = boolQ | mapQ
+  private lazy val expr: Parser[Query] = boolQ | mapQ
 
-  lazy val mapQ: Parser[Query] = (
-        stringFs ~ "=" ~ stringVal        ^^ { (e1, _, e2) => Eq(e1, e2) }
-      | stringFs ~ "!=" ~ stringVal       ^^ { (e1, _, e2) => Neq(e1, e2) }
-      | stringFs ~ "contains" ~ stringVal ^^ { (e1, _, e2) => Contains(e1, e2) }
-      | intFs ~ "=" ~ stringVal           ^^ { (e1, _, e2) => Eq(e1, e2.toInt) }
-      | intFs ~ "!=" ~ stringVal          ^^ { (e1, _, e2) => Neq(e1, e2.toInt) }
-      | dateFs ~ "=" ~ stringVal          ^^ { (e1, _, e2) => Eq(e1, OffsetDateTime.parse(e2)) }
-      | dateFs ~ "!=" ~ stringVal         ^^ { (e1, _, e2) => Neq(e1, OffsetDateTime.parse(e2)) }
+  private lazy val mapQ: Parser[Query] = (
+        stringKey ~ "=" ~ stringVal         ^^ { (s1, _, s2) => Eq(s1, s2) }
+      | stringKey ~ "!=" ~ stringVal        ^^ { (s1, _, s2) => Neq(s1, s2) }
+      | stringKey ~ "contains" ~ stringVal  ^^ { (s1, _, s2) => Contains(s1, s2) }
+
+      | periodQ ~ ".." ~ periodQ ^^ { (p1, _, p2) => p1 to p2 }
+      | periodQ                  ^^ { p => Until(p) }
     )
 
-  lazy val boolQ: Parser[Query] = (
-        expr ~ "AND" ~ expr ^^ { (e1, _, e2) => And(e1, e2) }
-      | expr ~ "OR" ~ expr  ^^ { (e1, _, e2) => Or(e1, e2) }
+  private lazy val boolQ: Parser[Query] = (
+        expr ~ "AND" ~ expr ^^ { (q1, _, q2) => q1 and q2 }
+      | expr ~ "OR" ~ expr  ^^ { (q1, _, q2) => q1 or q2 }
     )
+
+  private lazy val periodQ = numVal ~ timeVal ^^ { (num, unit) =>
+    Period(num.toLong, values.find(_.name == unit.toLowerCase).get) }
 
   private implicit def toParser(sq: Seq[String]): Parser[String] = sq.reduce(_ + "|" + _).r ^^ { f => f }
   private implicit def toParser(regex: Regex): Parser[String] = regex ^^ { case regex(s) => s }
 
-  lazy val fail = Failure(new RuntimeException("Wrong query"))
+  private val fail = Failure(new RuntimeException("Wrong query"))
 
   // %%
 

@@ -1,9 +1,9 @@
 package com.github.scalalab3.logs.storage.rethink
 
-import java.time.OffsetDateTime
+import java.time._
 import java.util.UUID
 
-import com.github.scalalab3.logs.common._
+import com.github.scalalab3.logs.common.domain.{Period, _}
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import org.specs2.mutable.Specification
 import org.specs2.specification._
@@ -13,24 +13,25 @@ import scala.util.Try
 class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
   sequential
 
-  val tryRethinkContext = Try(new RethinkContext(RethinkConfig()))
+  val tryRethinkContext = Try(new RethinkContext(RethinkConfig.load()))
 
   "LogStorageComponentImpl Test" >> {
 
     if (tryRethinkContext.isSuccess) {
 
       implicit val r = tryRethinkContext.get
+      val now = OffsetDateTime.now()
 
-      val log1 = Log(id = uuid(), level = 0, env = "test", name = "log1", timestamp = now(),
+      val log1 = Log(id = uuid(), level = "debug", env = "test", name = "log1", dateTime = now.minusHours(2L),
         message = "message1", cause = "unknown", stackTrace = "some cause")
 
-      val log2 = Log(id = uuid(), level = 1, env = "test", name = "log2", timestamp = now(),
+      val log2 = Log(id = uuid(), level = "info", env = "test", name = "log2", dateTime = now.minusMinutes(40L),
         message = "message2", cause = "empty", stackTrace = "is empty")
 
-      val log3 = Log(id = uuid(), level = 1, env = "new", name = "log3", timestamp = now(),
+      val log3 = Log(id = uuid(), level = "info", env = "new", name = "log3", dateTime = now.minusMinutes(20L),
         message = "message3", cause = "empty", stackTrace = "null")
 
-      val log4 = Log(id = uuid(), level = 2, env = "new", name = "log4", timestamp = now().minusMinutes(1L),
+      val log4 = Log(id = uuid(), level = "error", env = "new", name = "log4", dateTime = now,
         message = "message4", cause = "unknown", stackTrace = "stackTrace")
 
       val logs = List(log1, log2, log3)
@@ -46,9 +47,9 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
       }
 
       "insert log" in {
-        storage.insert(log4)
+        storage.insert(log4) must_== true
         storage.count() must_== 4
-        storage.insert(null)
+        storage.insert(null) must_== false
         storage.count() must_== 4
       }
 
@@ -58,22 +59,33 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
         storage.lastLogs(10).size must_== 4
       }
 
-      "filter logs" in {
+      "filter logs by query" in {
         storage.filter(Contains("name", "log")).size must_== 4
         storage.filter(Contains("env", "test") and Eq("cause", "unknown")) must_== List(log1)
         storage.filter(null) must_== Nil
         storage.filter(Or(null, Eq("stackTrace", "null"))) must_== List(log3)
         storage.filter(And(null, null)) must_== Nil
-        storage.filter(Neq("level", 0) and Eq("env", "test") or Contains("stackTrace", "stackTrace"))
-          .sortBy(_.timestamp) must_== List(log4, log2)
-        storage.filter(Eq("timestamp", log4.timestamp)) must_== List(log4)
-        storage.filter(Contains("timestamp", "not a number")) must_== Nil
+        storage.filter(Neq("level", "debug") and Eq("env", "test") or Contains("stackTrace", "stackTrace"))
+          .sortBy(_.dateTime) must_== List(log2, log4)
+        storage.filter(Contains("dateTime", "not a number")) must_== Nil
+      }
+
+      "filter logs by query with time" in {
+        // 10000 sec
+        storage.filter(Until(Period(10000, Sec))).size must_== 4
+
+        // 1 min .. 1 h
+        storage.filter(Period(1, Min) to Period(1, Hour)).sortBy(_.dateTime) must_== List(log2, log3)
+
+        // name contains 'log' AND 10 min .. 30 min
+        storage.filter(
+          Contains("name", "log") and (Period(10, Min) to Period(30, Min))
+        ).sortBy(_.dateTime) must_== List(log3)
       }
     } else "Skipped Test" >> skipped ("RethinkContext is not available in ")
   }
 
   def uuid() = Some(UUID.randomUUID())
-  def now() = OffsetDateTime.now()
   def drop() = for (r <- tryRethinkContext) r.dbDrop()
 
   override def beforeAll(): Unit = drop()
