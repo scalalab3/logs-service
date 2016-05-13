@@ -4,8 +4,8 @@ import com.github.scalalab3.logs.common.Log
 
 import scala.reflect.runtime.universe._
 
-// non string fields of Log
 object Keys {
+  // non string fields of Log
   val id = "id"
   val level = "level"
   val time = "dateTime"

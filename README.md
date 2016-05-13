@@ -12,6 +12,7 @@ Tasks description [here](https://github.com/scalalab3/logs-service/wiki).
 * storage
 * ui
 * analytics
+* tests
 
 
 ## How to switch modules in development
@@ -28,7 +29,7 @@ After that all commands (test, compile, etc) will be ran only for that module.
 
 ## Testing
 
-You can see some example tests in `common/src/test/scala/com/github/scallab3/logs/common.scala`
+You can see some example tests in `tests/src/test/scala/com/github/scallab3/logs/common.scala`
 
 Consult with [structure doc](https://etorreborre.github.io/specs2/guide/SPECS2-3.7.2/org.specs2.guide.Structure.html) and [matchers doc](https://etorreborre.github.io/specs2/guide/SPECS2-3.7.2/org.specs2.guide.Matchers.html) to write matchers.
 
