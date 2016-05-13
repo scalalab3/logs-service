@@ -1,10 +1,11 @@
 package com.github.scalalab3.logs.storage
 
-import com.github.scalalab3.logs.common.domain.{Query, Log}
+import com.github.scalalab3.logs.common.Log
+import com.github.scalalab3.logs.common.query.Query
 import com.github.scalalab3.logs.common_macro.ToMap._
 import com.github.scalalab3.logs.common_macro._
 import com.github.scalalab3.logs.storage.rethink.RethinkImplicits._
-import com.github.scalalab3.logs.storage.rethink.{LogToRethinkModel, QueryToReqlFunction1, RethinkContext}
+import com.github.scalalab3.logs.storage.rethink.{LogToRethink, QueryToReqlFunction1, RethinkContext}
 
 trait LogStorageComponentImpl extends LogStorageComponent {
 
@@ -12,7 +13,7 @@ trait LogStorageComponentImpl extends LogStorageComponent {
 
   class LogStorageImpl(implicit r: RethinkContext) extends LogStorage {
 
-    private implicit val converter = LogToRethinkModel
+    private implicit val converter = LogToRethink
     private implicit val connection = r.connect
 
     private implicit val toMap: Log => HM = toHashMap(_)
@@ -41,7 +42,5 @@ trait LogStorageComponentImpl extends LogStorageComponent {
           .getOrElse(Nil)
       case _ => Nil
     }
-
   }
-
 }

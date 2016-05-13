@@ -1,15 +1,15 @@
 package com.github.scalalab3.logs.storage.rethink
 
-import com.github.scalalab3.logs.common.domain.Log
-import com.github.scalalab3.logs.common.gen.GenLog
+import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.common_macro.ToMap._
 import com.github.scalalab3.logs.common_macro._
+import com.github.scalalab3.logs.tests.GenLog
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
-class LogToRethinkModelTest extends Specification {
+class LogToRethinkTest extends Specification {
 
-  implicit val converter = LogToRethinkModel
+  implicit val converter = LogToRethink
 
   def toMap(log: Log): HM = toHashMap(log)
   def fromMap(map: HM): Option[Log] = materialize[Log](map)
@@ -17,8 +17,8 @@ class LogToRethinkModelTest extends Specification {
   trait pairLogRethinkModel extends Scope {
     val log = GenLog.randomLog()
     val rethinkModel: HM = Map[String, Any](
-      "id" -> log.id.get.toString,  // important
-      "level" -> log.level,
+      "id" -> log.id.get.toString,   // important
+      "level" -> log.level.toString, // important
       "env" -> log.env,
       "name" -> log.name,
       "dateTime" -> log.dateTime,

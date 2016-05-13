@@ -2,8 +2,8 @@ package com.github.scalalab3.logs
 
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.github.scalalab3.logs.common.domain.Log
-import com.github.scalalab3.logs.common.gen.GenLog
+import com.github.scalalab3.logs.common.Log
+import com.github.scalalab3.logs.tests.GenLog
 import org.specs2.matcher.MatcherMacros
 import org.specs2.mutable.{After, Specification, SpecificationLike}
 

@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.common.domain
+package com.github.scalalab3.logs.common.query
 
 sealed trait Query
 
@@ -19,6 +19,4 @@ object Query {
     def or(rightQuery: Query)  = Or(leftQuery, rightQuery)
     def and(rightQuery: Query) = And(leftQuery, rightQuery)
   }
-
-  val timeKey: String = "dateTime"
 }

@@ -5,8 +5,8 @@ import scala.reflect.macros.whitebox
 
 trait FromMap[T] {
 
-  implicit class HashMapExt(x: HM)(implicit converter: Converter[T]) {
-    def safeGet(k: String): Option[Any] = converter.fromMap((k, Option(x.get(k))))
+  implicit class HashMapExt(map: HM)(implicit converter: Converter[T]) {
+    def safeGet(key: String): Option[Any] = converter.fromMap(key -> Option(map.get(key)))
   }
 
   def fromMap(map: HM): Option[T]

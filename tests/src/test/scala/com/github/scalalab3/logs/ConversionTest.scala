@@ -1,10 +1,9 @@
 package com.github.scalalab3.logs
 
-import com.github.scalalab3.logs.common.domain.Log
-import com.github.scalalab3.logs.common.gen.GenLog
-import GenLog.pairLogMap
+import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.common_macro.ToMap._
 import com.github.scalalab3.logs.common_macro._
+import com.github.scalalab3.logs.tests.GenLog.pairLogMap
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 

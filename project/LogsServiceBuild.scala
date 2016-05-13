@@ -1,5 +1,5 @@
-import sbt._
 import sbt.Keys._
+import sbt._
 
 object LogsServiceBuild extends Build {
 
@@ -35,9 +35,8 @@ object LogsServiceBuild extends Build {
       "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
       "com.chuusai" %% "shapeless" % "2.3.0",
       "org.scala-lang" % "scala-reflect" % "2.11.8",
-      "com.codecommit" %% "gll-combinators" % "2.2",
+      "org.scalaz" %% "scalaz-core" % "7.2.2",
       "com.typesafe" % "config" % "1.3.0",
-      "com.rethinkdb" % "rethinkdb-driver" % "2.3.0",
       "org.slf4j" % "slf4j-log4j12" % "1.7.21"
     )
   }
@@ -62,21 +61,26 @@ object LogsServiceBuild extends Build {
   lazy val common = makeProject("common")
     .dependsOn(common_macro)
 
+  lazy val tests = makeProject("tests")
+    .dependsOn(common_macro, common)
+
   lazy val core = makeProject("core")
-    .dependsOn(common)
+    .dependsOn(common, tests % "test")
 
   lazy val parser = makeProject("parser")
-    .dependsOn(common)
+    .dependsOn(common, tests % "test")
+    .settings( libraryDependencies += "com.codecommit" %% "gll-combinators" % "2.2" )
 
   lazy val storage = makeProject("storage")
-    .dependsOn(common, common_macro)
+    .dependsOn(common, common_macro, tests % "test")
+    .settings( libraryDependencies += "com.rethinkdb" % "rethinkdb-driver" % "2.3.0" )
 
   lazy val ui = makeProject("ui")
-    .dependsOn(common)
+    .dependsOn(common, tests % "test")
 
   lazy val analytics = makeProject("analytics")
-    .dependsOn(common)
+    .dependsOn(common, tests % "test")
 
   lazy val main = makeProject("main", Some("."))
-    .aggregate(common, common_macro, core, parser, storage, ui, analytics)
+    .aggregate(common, common_macro, core, parser, storage, ui, analytics, tests)
 }

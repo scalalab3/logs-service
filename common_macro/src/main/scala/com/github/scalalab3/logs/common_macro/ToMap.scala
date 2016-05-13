@@ -10,11 +10,9 @@ object ToMap {
                                                                    lgen: LabelledGeneric.Aux[T, R],
                                                                    toMap: ops.record.ToMap.Aux[R, K, V]
                                                                   ): HM = {
-    lgen.to(a).toMap.filter(_._2.nonEmpty).map(implicitly[Converter[T]].toMap)
+    lgen.to(a).toMap.filter {
+      case (_, None) => false
+      case _ => true
+    } map implicitly[Converter[T]].toMap
   }
-
-  implicit class AnyExt(a: Any) {
-    def nonEmpty: Boolean = if (a == None) false else true
-  }
-
 }

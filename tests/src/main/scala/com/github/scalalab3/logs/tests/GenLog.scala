@@ -1,9 +1,10 @@
-package com.github.scalalab3.logs.common.gen
+package com.github.scalalab3.logs.tests
 
 import java.time.OffsetDateTime.now
 import java.util.UUID
 import java.util.UUID.randomUUID
-import com.github.scalalab3.logs.common.domain.Log
+
+import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.common_macro._
 
 import scala.util.Random
@@ -13,7 +14,7 @@ object GenLog {
   def pairLogMap(idOpt: Option[UUID] = Some(randomUUID())) = {
     val dateTime = now
     val map: HM = Map[String, Any](
-      "level" -> "info",
+      "level" -> Info,
       "env" -> "test",
       "name" -> "log",
       "dateTime" -> dateTime,
@@ -25,7 +26,7 @@ object GenLog {
 
     val log = Log(
       id = idOpt,
-      level = "info",
+      level = Info,
       env = "test",
       name = "log",
       dateTime = dateTime,
@@ -45,7 +46,6 @@ object GenLog {
       cause = "unknown",
       stackTrace = "empty")
 
-  private def level = levels(Random.nextInt(levels.length))
+  private def level = Level.values(Random.nextInt(Level.count))
 
-  private val levels = Array("debug", "info", "warning", "error")
 }

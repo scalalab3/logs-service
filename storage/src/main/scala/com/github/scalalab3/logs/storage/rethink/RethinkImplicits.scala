@@ -3,6 +3,7 @@ package com.github.scalalab3.logs.storage.rethink
 import java.util
 
 import com.github.scalalab3.logs.common_macro._
+import com.github.scalalab3.logs.storage.rethink.constant.ReqlConstant
 import com.rethinkdb.RethinkDB
 import com.rethinkdb.ast.ReqlAst
 import com.rethinkdb.gen.ast.{Db, ReqlFunction1, Table}
@@ -20,9 +21,8 @@ object RethinkImplicits {
 
   private def isExists(name: String, optList: Option[util.List[_]]): Boolean = {
     val res = for {
-      str <- Option(name)
       list <- optList
-    } yield list.contains(str)
+    } yield list.contains(name)
 
     res.getOrElse(false)
   }
@@ -65,21 +65,14 @@ object RethinkImplicits {
     // `true` if successful insert
     def insertSafe(map: HM): Boolean = {
       val res = for {
-        m <- Option(map)
-        t <- Typeable[HM].cast(table.insert(m).perform())
-        i <- Option(t.get(inserted))
+        m <- Typeable[HM].cast(table.insert(map).perform())
+        i <- Option(m.get(ReqlConstant.inserted))
       } yield i
 
       res.contains(1L)
     }
 
-    def insertSafe[T](obj: T)(implicit toMap: T => HM): Boolean = {
-      val res = for {
-        o <- Option(obj)
-      } yield insertSafe(toMap(o))
-
-      res.getOrElse(false)
-    }
+    def insertSafe[T](obj: T)(implicit toMap: T => HM): Boolean = insertSafe(toMap(obj))
 
     def countSafe(): Option[Long] = Typeable[Long].cast(table.count().perform())
   }
@@ -127,6 +120,4 @@ object RethinkImplicits {
 
       override def describe: String = "util.ArrayList[_]"
     }
-
-  private val inserted = "inserted"
 }

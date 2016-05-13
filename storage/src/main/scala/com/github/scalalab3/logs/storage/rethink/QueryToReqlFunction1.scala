@@ -2,7 +2,9 @@ package com.github.scalalab3.logs.storage.rethink
 
 import java.time.OffsetDateTime
 
-import com.github.scalalab3.logs.common.domain._
+import com.github.scalalab3.logs.common.query._
+import com.github.scalalab3.logs.common.util.Keys
+import com.github.scalalab3.logs.storage.rethink.constant.ReqlConstant._
 import com.rethinkdb.RethinkDB.r
 import com.rethinkdb.gen.ast.{ReqlExpr, ReqlFunction1}
 
@@ -20,12 +22,12 @@ object QueryToReqlFunction1 extends (Query => ReqlFunction1) {
       case q: Neq       => _.g(q.key).`ne`(q.value)
       case q: Contains  => _.g(q.key).`match`(q.value)
 
-      case q: Between   => _.g(Query.timeKey)
+      case q: Between   => _.g(Keys.time)
         .during(toTime(q.rightPeriod), toTime(q.leftPeriod))
         .optArg(leftBound, closed)
         .optArg(rightBound, closed)
 
-      case q: Until     => _.g(Query.timeKey)
+      case q: Until     => _.g(Keys.time)
         .during(toTime(q.period), r.now())
         .optArg(leftBound, closed)
         .optArg(rightBound, closed)
@@ -34,12 +36,7 @@ object QueryToReqlFunction1 extends (Query => ReqlFunction1) {
     }
   }
 
-  private def toTime(period: Period) = {
-    val t = OffsetDateTime.now().minus(period.amount(), period.timeUnit.temporalUnit)
-    r.epochTime(t.toEpochSecond)
-  }
-
-  private val leftBound = "left_bound"
-  private val rightBound = "right_bound"
-  private val closed = "closed"
+  private def toTime(period: Period) = r.epochTime(OffsetDateTime.now()
+    .minus(period.amount, period.timeUnit.temporalUnit)
+    .toEpochSecond)
 }
