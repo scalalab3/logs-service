@@ -12,6 +12,6 @@ object Keys {
 
   val stringKeys: Seq[String] = typeOf[Log].members.collect {
     case m: MethodSymbol
-      if m.isCaseAccessor & m.typeSignature.finalResultType =:= typeOf[String] => m.name.toString
+      if m.isCaseAccessor && m.typeSignature.finalResultType =:= typeOf[String] => m.name.toString
   }.toSeq
 }

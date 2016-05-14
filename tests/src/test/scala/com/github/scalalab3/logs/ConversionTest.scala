@@ -1,6 +1,7 @@
 package com.github.scalalab3.logs
 
 import com.github.scalalab3.logs.common.Log
+import com.github.scalalab3.logs.common.util.Keys
 import com.github.scalalab3.logs.common_macro.ToMap._
 import com.github.scalalab3.logs.common_macro._
 import com.github.scalalab3.logs.tests.GenLog.pairLogMap
@@ -20,7 +21,7 @@ class ConversionTest extends Specification {
     }
 
     override def fromMap: Function[(String, Option[Any]), Option[Any]] = {
-      case ("id", opt) => Option(opt)
+      case (Keys.id, opt) => Option(opt)
       case (_, opt) => opt
     }
   }
