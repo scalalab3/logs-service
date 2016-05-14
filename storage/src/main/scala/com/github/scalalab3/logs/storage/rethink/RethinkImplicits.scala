@@ -1,0 +1,123 @@
+package com.github.scalalab3.logs.storage.rethink
+
+import java.util
+
+import com.github.scalalab3.logs.common_macro._
+import com.github.scalalab3.logs.storage.rethink.constant.ReqlConstant
+import com.rethinkdb.RethinkDB
+import com.rethinkdb.ast.ReqlAst
+import com.rethinkdb.gen.ast.{Db, ReqlFunction1, Table}
+import com.rethinkdb.net.{Connection, Cursor}
+import shapeless.Typeable
+
+import scala.collection.JavaConverters._
+import scala.util.Try
+
+object RethinkImplicits {
+
+  implicit class ReqlAstExt(ast: ReqlAst)(implicit c: Connection) {
+    @inline def perform[A](): A = ast.run[A](c)
+  }
+
+  private def isExists(name: String, optList: Option[util.List[_]]): Boolean = {
+    val res = for {
+      list <- optList
+    } yield list.contains(name)
+
+    res.getOrElse(false)
+  }
+
+  implicit class RethinkDBExt(r: RethinkDB)(implicit c: Connection) {
+    def dbList = Typeable[util.List[_]].cast(r.dbList().perform())
+
+    def dbSafe(name: String): Db = {
+      if (!isExists(name, dbList)) r.dbCreate(name).perform()
+      r.db(name)
+    }
+
+    def dbDropSafe(name: String): Unit = {
+      if (isExists(name, dbList)) r.dbDrop(name).perform()
+    }
+  }
+
+  implicit class DbExt(db: Db)(implicit c: Connection) {
+    def tableList = Typeable[util.List[_]].cast(db.tableList().perform())
+
+    def tableSafe(name: String): Table = {
+      if (!isExists(name, tableList)) db.tableCreate(name).perform()
+      db.table(name)
+    }
+
+    def tableDropSafe(name: String): Unit = {
+      if (isExists(name, tableList)) db.tableDrop(name).perform()
+    }
+  }
+
+  implicit class TableExt(table: Table)(implicit c: Connection) {
+    def cursorSafe(): Option[Cursor[HM]] = Typeable[Cursor[HM]].cast(table.perform())
+
+    def filterSafe(func1: ReqlFunction1): Option[Cursor[HM]] = Try {
+      Typeable[Cursor[HM]].cast {
+        table.filter(func1).perform()
+      }
+    }.toOption.flatten
+
+    // `true` if successful insert
+    def insertSafe(map: HM): Boolean = {
+      val res = for {
+        m <- Typeable[HM].cast(table.insert(map).perform())
+        i <- Option(m.get(ReqlConstant.inserted))
+      } yield i
+
+      res.contains(1L)
+    }
+
+    def insertSafe[T](obj: T)(implicit toMap: T => HM): Boolean = insertSafe(toMap(obj))
+
+    def countSafe(): Option[Long] = Typeable[Long].cast(table.count().perform())
+  }
+
+  implicit class CursorExt(cursor: Cursor[HM]) {
+    def toScalaList[T](implicit fromMap: HM => Option[T]): List[T] =
+      cursor.toList.asScala.flatMap(fromMap(_)).toList
+  }
+
+  implicit val typeableCursor: Typeable[Cursor[HM]] =
+    new Typeable[Cursor[HM]] {
+      override def cast(t: Any): Option[Cursor[HM]] = {
+        if (t == null) None
+        else t match {
+          case c: Cursor[_] => Try(c.asInstanceOf[Cursor[HM]]).toOption
+          case _ => None
+        }
+      }
+
+      override def describe: String = "Cursor[HM]"
+    }
+
+  implicit val typeableList: Typeable[util.List[_]] =
+    new Typeable[util.List[_]] {
+      override def cast(t: Any): Option[util.List[_]] = {
+        if (t == null) None
+        else t match {
+          case c: util.List[_] => Some(c)
+          case _ => None
+        }
+      }
+
+      override def describe: String = "util.ArrayList[_]"
+    }
+
+  implicit val typeableMap: Typeable[HM] =
+    new Typeable[HM] {
+      override def cast(t: Any): Option[HM] = {
+        if (t == null) None
+        else t match {
+          case c: util.Map[_, _] => Try(c.asInstanceOf[HM]).toOption
+          case _ => None
+        }
+      }
+
+      override def describe: String = "util.ArrayList[_]"
+    }
+}

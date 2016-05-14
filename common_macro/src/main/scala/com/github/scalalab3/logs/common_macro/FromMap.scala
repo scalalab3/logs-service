@@ -1,24 +1,22 @@
 package com.github.scalalab3.logs.common_macro
 
-import java.util.HashMap
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
-
 trait FromMap[T] {
-  implicit class HashMapExt(x: HashMap[String, Any]) {
-    def safeGet(k: String) = Option(x.get(k))
+
+  implicit class HashMapExt(map: HM)(implicit converter: Converter[T]) {
+    def safeGet(key: String): Option[Any] = converter.fromMap(key -> Option(map.get(key)))
   }
 
-  def fromMap(map: HashMap[String, Any]): Option[T]
+  def fromMap(map: HM): Option[T]
 }
 
 object FromMap {
 
   implicit def materializeMappable[T]: FromMap[T] = macro materializeMappableImpl[T]
 
-  def materializeMappableImpl[T: c.WeakTypeTag](c: whitebox.Context):
-      c.Expr[FromMap[T]] = {
+  def materializeMappableImpl[T: c.WeakTypeTag](c: whitebox.Context): c.Expr[FromMap[T]] = {
 
     import c.universe._
     val tpe = weakTypeOf[T]
@@ -35,8 +33,7 @@ object FromMap {
     }.get.paramLists.head
 
     val names = fields.map { field =>
-      val name = field.name.toTermName
-      q"$name"
+      q"${field.name.toTermName}"
     }
 
     val forLoop = fields.map { field =>
@@ -44,11 +41,9 @@ object FromMap {
       val decoded = name.decodedName.toString
       val returnType = tpe.decl(name).typeSignature
 
-      val ret = decoded match {
-        case "id" => q"Option(map.safeGet($decoded))"
-        case _ => q"map.safeGet($decoded)"
-      }
-      fq"$name <- $ret.map(_.asInstanceOf[$returnType])"
+      val ret = q"map.safeGet($decoded).map(_.asInstanceOf[$returnType])"
+
+      fq"$name <- $ret"
     }
 
     c.Expr[FromMap[T]] {
