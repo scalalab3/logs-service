@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.core
+package com.github.scalalab3.logs.services
 
 import akka.actor.{Props}
 import com.github.scalalab3.logs.tests.AkkaSpec

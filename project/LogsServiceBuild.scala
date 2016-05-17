@@ -54,7 +54,7 @@ object LogsServiceBuild extends Build {
   )
 
   val mainSettings = commonSettings ++ Seq(
-    mainClass in assembly := Some("com.github.scalalab3.logs.core.Boot"),
+    mainClass in assembly := Some("com.github.scalalab3.logs.services.Boot"),
     test in assembly := {}
   )
 

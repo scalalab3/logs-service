@@ -40,6 +40,6 @@ To run all tests ensure that you're in `project main`.
 ## Build jar and run
 
 ```
-$ sbt assembly
-$ java -jar java -jar target/scala-2.11/main-assembly-0.0.1.jar
+$ sbt main/assembly
+$ java -jar target/scala-2.11/main-assembly-0.0.1.jar
 ```
