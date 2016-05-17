@@ -1,5 +1,6 @@
-import sbt.Keys._
 import sbt._
+import sbt.Keys._
+import sbtassembly.AssemblyPlugin.autoImport._
 
 object LogsServiceBuild extends Build {
 
@@ -52,11 +53,17 @@ object LogsServiceBuild extends Build {
     libraryDependencies ++= baseDeps
   )
 
-  def makeProject(name: String, path: Option[String] = None) = {
+  val mainSettings = commonSettings ++ Seq(
+    mainClass in assembly := Some("com.github.scalalab3.logs.core.Boot"),
+    test in assembly := {}
+  )
+
+  def makeProject(name: String, path: Option[String] = None,
+    settings:Seq[sbt.Def.Setting[_]] = commonSettings) = {
     Project(
       id = name,
       base = file(path getOrElse name),
-      settings = commonSettings
+      settings = settings
     )
   }
 
@@ -86,6 +93,7 @@ object LogsServiceBuild extends Build {
   lazy val analytics = makeProject("analytics")
     .dependsOn(common, tests % "test")
 
-  lazy val main = makeProject("main", Some("."))
+  lazy val main = makeProject("main", Some("."), mainSettings)
+    .dependsOn(common, common_macro, core, parser, storage, ui, analytics, tests)
     .aggregate(common, common_macro, core, parser, storage, ui, analytics, tests)
 }

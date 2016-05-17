@@ -5,10 +5,6 @@ import akka.actor.{Actor, ActorLogging}
 
 class SystemActor extends Actor with ActorLogging {
   def receive = {
-    case msg => {
-      println(s"[SystemActor] received: $msg")
-      log.debug(s"received: $msg")
-    }
+    case msg => log.warning(s"Unhandled message: $msg")
   }
-  println("Launch SystemActor")
 }

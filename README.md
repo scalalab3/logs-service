@@ -36,3 +36,10 @@ Consult with [structure doc](https://etorreborre.github.io/specs2/guide/SPECS2-3
 To run all tests ensure that you're in `project main`.
 
 `~test` will run watcher that execute test after each change in source code.
+
+## Build jar and run
+
+```
+$ sbt assembly
+$ java -jar java -jar target/scala-2.11/main-assembly-0.0.1.jar
+```
