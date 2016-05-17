@@ -1,6 +1,7 @@
 # logs-service
 
 [![Gitter](https://badges.gitter.im/scalalab3/logs-service.svg)](https://gitter.im/scalalab3/logs-service?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/scalalab3/logs-service.svg?branch=master)](https://travis-ci.org/scalalab3/logs-service)
 
 Tasks description [here](https://github.com/scalalab3/logs-service/wiki).
 
