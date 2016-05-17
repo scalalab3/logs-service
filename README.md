@@ -43,3 +43,5 @@ To run all tests ensure that you're in `project main`.
 $ sbt main/assembly
 $ java -jar target/scala-2.11/main-assembly-0.0.1.jar
 ```
+
+Or jush run `./run.sh` in project root directory
