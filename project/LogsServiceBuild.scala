@@ -1,5 +1,6 @@
-import sbt.Keys._
 import sbt._
+import sbt.Keys._
+import sbtassembly.AssemblyPlugin.autoImport._
 
 object LogsServiceBuild extends Build {
 
@@ -25,10 +26,9 @@ object LogsServiceBuild extends Build {
     scalaVersion := "2.11.8"
   )
 
-  val baseDeps = {
-    val akkaV = "2.4.4"
-    val specsV = "3.7.2"
-    Seq(
+  val akkaV = "2.4.4"
+  val specsV = "3.7.2"
+  val baseDeps = Seq(
       "com.typesafe.akka" %% "akka-actor" % akkaV,
       "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
       "org.specs2" %% "specs2-core" % specsV % "test",
@@ -38,8 +38,13 @@ object LogsServiceBuild extends Build {
       "org.scalaz" %% "scalaz-core" % "7.2.2",
       "com.typesafe" % "config" % "1.3.0",
       "org.slf4j" % "slf4j-log4j12" % "1.7.21"
-    )
-  }
+  )
+
+  val testDeps = Seq(
+    "com.typesafe.akka" %% "akka-testkit" % akkaV,
+    "org.specs2" %% "specs2-core" % specsV,
+    "org.specs2" %% "specs2-matcher-extra" % specsV
+  )
 
   val commonSettings = baseSettings ++ Seq(
     organization := "com.github.scalalab3",
@@ -48,11 +53,17 @@ object LogsServiceBuild extends Build {
     libraryDependencies ++= baseDeps
   )
 
-  def makeProject(name: String, path: Option[String] = None) = {
+  val mainSettings = commonSettings ++ Seq(
+    mainClass in assembly := Some("com.github.scalalab3.logs.services.Boot"),
+    test in assembly := {}
+  )
+
+  def makeProject(name: String, path: Option[String] = None,
+    settings:Seq[sbt.Def.Setting[_]] = commonSettings) = {
     Project(
       id = name,
       base = file(path getOrElse name),
-      settings = commonSettings
+      settings = settings
     )
   }
 
@@ -62,10 +73,8 @@ object LogsServiceBuild extends Build {
     .dependsOn(common_macro)
 
   lazy val tests = makeProject("tests")
+    .settings( libraryDependencies ++= testDeps )
     .dependsOn(common_macro, common)
-
-  lazy val core = makeProject("core")
-    .dependsOn(common, tests % "test")
 
   lazy val parser = makeProject("parser")
     .dependsOn(common, tests % "test")
@@ -75,12 +84,7 @@ object LogsServiceBuild extends Build {
     .dependsOn(common, common_macro, tests % "test")
     .settings( libraryDependencies += "com.rethinkdb" % "rethinkdb-driver" % "2.3.0" )
 
-  lazy val ui = makeProject("ui")
-    .dependsOn(common, tests % "test")
-
-  lazy val analytics = makeProject("analytics")
-    .dependsOn(common, tests % "test")
-
-  lazy val main = makeProject("main", Some("."))
-    .aggregate(common, common_macro, core, parser, storage, ui, analytics, tests)
+  lazy val main = makeProject("main", Some("."), mainSettings)
+    .dependsOn(common, common_macro, parser, storage, tests)
+    .aggregate(common, common_macro, parser, storage, tests)
 }
