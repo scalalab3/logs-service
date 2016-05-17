@@ -76,9 +76,6 @@ object LogsServiceBuild extends Build {
     .settings( libraryDependencies ++= testDeps )
     .dependsOn(common_macro, common)
 
-  lazy val core = makeProject("core")
-    .dependsOn(common, tests % "test")
-
   lazy val parser = makeProject("parser")
     .dependsOn(common, tests % "test")
     .settings( libraryDependencies += "com.codecommit" %% "gll-combinators" % "2.2" )
@@ -87,13 +84,7 @@ object LogsServiceBuild extends Build {
     .dependsOn(common, common_macro, tests % "test")
     .settings( libraryDependencies += "com.rethinkdb" % "rethinkdb-driver" % "2.3.0" )
 
-  lazy val ui = makeProject("ui")
-    .dependsOn(common, tests % "test")
-
-  lazy val analytics = makeProject("analytics")
-    .dependsOn(common, tests % "test")
-
   lazy val main = makeProject("main", Some("."), mainSettings)
-    .dependsOn(common, common_macro, core, parser, storage, ui, analytics, tests)
-    .aggregate(common, common_macro, core, parser, storage, ui, analytics, tests)
+    .dependsOn(common, common_macro, parser, storage, tests)
+    .aggregate(common, common_macro, parser, storage, tests)
 }
