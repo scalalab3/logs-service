@@ -7,12 +7,10 @@ Tasks description [here](https://github.com/scalalab3/logs-service/wiki).
 
 # Base modules structure
 
+* common_macro
 * common
-* core
 * parser
 * storage
-* ui
-* analytics
 * tests
 
 

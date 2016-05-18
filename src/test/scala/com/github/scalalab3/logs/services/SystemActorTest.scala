@@ -1,6 +1,6 @@
 package com.github.scalalab3.logs.services
 
-import akka.actor.{Props}
+import akka.actor.Props
 import com.github.scalalab3.logs.tests.AkkaSpec
 
 class SystemActorTest extends AkkaSpec {

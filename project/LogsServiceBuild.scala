@@ -1,5 +1,5 @@
-import sbt._
 import sbt.Keys._
+import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 
 object LogsServiceBuild extends Build {
@@ -28,22 +28,28 @@ object LogsServiceBuild extends Build {
 
   val akkaV = "2.4.4"
   val specsV = "3.7.2"
+  val sprayV = "1.3.3"
   val baseDeps = Seq(
-      "com.typesafe.akka" %% "akka-actor" % akkaV,
-      "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
-      "org.specs2" %% "specs2-core" % specsV % "test",
-      "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
-      "com.chuusai" %% "shapeless" % "2.3.0",
-      "org.scala-lang" % "scala-reflect" % "2.11.8",
-      "org.scalaz" %% "scalaz-core" % "7.2.2",
-      "com.typesafe" % "config" % "1.3.0",
-      "org.slf4j" % "slf4j-log4j12" % "1.7.21"
+    "com.typesafe.akka" %% "akka-actor" % akkaV,
+    "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
+    "org.specs2" %% "specs2-core" % specsV % "test",
+    "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
+    "com.chuusai" %% "shapeless" % "2.3.0",
+    "org.scala-lang" % "scala-reflect" % "2.11.8",
+    "org.scalaz" %% "scalaz-core" % "7.2.2",
+    "com.typesafe" % "config" % "1.3.0",
+    "org.slf4j" % "slf4j-log4j12" % "1.7.21",
+    "io.spray" %% "spray-can" % sprayV,
+    "io.spray" %% "spray-routing-shapeless2" % sprayV,
+    "io.spray" %% "spray-httpx" % sprayV,
+    "io.spray" %% "spray-json" % "1.3.2"
   )
 
   val testDeps = Seq(
     "com.typesafe.akka" %% "akka-testkit" % akkaV,
     "org.specs2" %% "specs2-core" % specsV,
-    "org.specs2" %% "specs2-matcher-extra" % specsV
+    "org.specs2" %% "specs2-matcher-extra" % specsV,
+    "io.spray" %% "spray-testkit" % sprayV
   )
 
   val commonSettings = baseSettings ++ Seq(
@@ -59,7 +65,7 @@ object LogsServiceBuild extends Build {
   )
 
   def makeProject(name: String, path: Option[String] = None,
-    settings:Seq[sbt.Def.Setting[_]] = commonSettings) = {
+                  settings: Seq[sbt.Def.Setting[_]] = commonSettings) = {
     Project(
       id = name,
       base = file(path getOrElse name),
@@ -73,16 +79,16 @@ object LogsServiceBuild extends Build {
     .dependsOn(common_macro)
 
   lazy val tests = makeProject("tests")
-    .settings( libraryDependencies ++= testDeps )
+    .settings(libraryDependencies ++= testDeps)
     .dependsOn(common_macro, common)
 
   lazy val parser = makeProject("parser")
     .dependsOn(common, tests % "test")
-    .settings( libraryDependencies += "com.codecommit" %% "gll-combinators" % "2.2" )
+    .settings(libraryDependencies += "com.codecommit" %% "gll-combinators" % "2.2")
 
   lazy val storage = makeProject("storage")
     .dependsOn(common, common_macro, tests % "test")
-    .settings( libraryDependencies += "com.rethinkdb" % "rethinkdb-driver" % "2.3.0" )
+    .settings(libraryDependencies += "com.rethinkdb" % "rethinkdb-driver" % "2.3.0")
 
   lazy val main = makeProject("main", Some("."), mainSettings)
     .dependsOn(common, common_macro, parser, storage, tests)
