@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.storage.rethink.constant
+package com.github.scalalab3.logs.storage.rethink.constants
 
 object PropertyDefaultValues {
   val defaultHost = "localhost"
