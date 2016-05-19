@@ -3,7 +3,6 @@ package com.github.scalalab3.logs.storage.rethink
 import java.util
 
 import com.github.scalalab3.logs.common_macro._
-import com.github.scalalab3.logs.storage.rethink.constants.ReqlConstants
 import com.rethinkdb.RethinkDB
 import com.rethinkdb.ast.ReqlAst
 import com.rethinkdb.gen.ast.{Db, ReqlFunction1, Table}

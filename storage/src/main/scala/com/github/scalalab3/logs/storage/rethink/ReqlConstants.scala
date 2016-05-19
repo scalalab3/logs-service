@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.storage.rethink.constants
+package com.github.scalalab3.logs.storage.rethink
 
 object ReqlConstants {
   val leftBound = "left_bound"

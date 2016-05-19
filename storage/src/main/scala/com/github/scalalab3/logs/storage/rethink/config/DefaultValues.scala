@@ -1,6 +1,6 @@
-package com.github.scalalab3.logs.storage.rethink.constants
+package com.github.scalalab3.logs.storage.rethink.config
 
-object PropertyDefaultValues {
+object DefaultValues {
   val defaultHost = "localhost"
   val defaultPort = 28015
   val defaultUser = "admin"

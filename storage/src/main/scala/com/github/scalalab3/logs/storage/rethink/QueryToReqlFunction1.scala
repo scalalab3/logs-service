@@ -4,7 +4,7 @@ import java.time.OffsetDateTime
 
 import com.github.scalalab3.logs.common.query._
 import com.github.scalalab3.logs.common.util.Keys
-import com.github.scalalab3.logs.storage.rethink.constants.ReqlConstants._
+import ReqlConstants._
 import com.rethinkdb.RethinkDB.r
 import com.rethinkdb.gen.ast.{ReqlExpr, ReqlFunction1}
 

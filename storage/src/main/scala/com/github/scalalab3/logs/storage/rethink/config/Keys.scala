@@ -1,6 +1,6 @@
-package com.github.scalalab3.logs.storage.rethink.constants
+package com.github.scalalab3.logs.storage.rethink.config
 
-object PropertyKeys {
+object Keys {
   val rethink = "rethink"
   val host = s"$rethink.host"
   val port = s"$rethink.port"
