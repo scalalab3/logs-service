@@ -6,6 +6,7 @@ import com.github.scalalab3.logs.common_macro.ToMap._
 import com.github.scalalab3.logs.common_macro._
 import com.github.scalalab3.logs.storage.rethink.RethinkImplicits._
 import com.github.scalalab3.logs.storage.rethink.{LogToRethink, QueryToReqlFunction1, RethinkContext}
+import com.rethinkdb.net.Cursor
 
 trait LogStorageComponentImpl extends LogStorageComponent {
 
@@ -19,7 +20,6 @@ trait LogStorageComponentImpl extends LogStorageComponent {
     private implicit val toMap: Log => HM = toHashMap(_)
     private implicit val fromMap: HM => Option[Log] = materialize[Log]
 
-    // impl
     override def insert(log: Log): Boolean = r.table().insertSafe[Log](log)
 
     override def count(): Long = r.table().countSafe().getOrElse(0L)
@@ -42,5 +42,7 @@ trait LogStorageComponentImpl extends LogStorageComponent {
           .getOrElse(Nil)
       case _ => Nil
     }
+
+    override def changesCursor(): Cursor[Any] = r.table().changes.run(connection)
   }
 }
