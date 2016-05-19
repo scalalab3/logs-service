@@ -6,7 +6,8 @@ import com.github.scalalab3.logs.common.query.Query
 import com.github.scalalab3.logs.components.QueryServiceComponentImpl
 import com.github.scalalab3.logs.tests.{GenLog, LogJsonSpecification, Specs2RouteTest}
 import org.specs2.specification.AfterAll
-import spray.http.{StatusCodes, Uri}
+import spray.http.{HttpMethods, StatusCodes, Uri}
+import spray.routing.MethodRejection
 
 class QueryServiceTest extends LogJsonSpecification with AfterAll
   with Specs2RouteTest
@@ -22,7 +23,7 @@ class QueryServiceTest extends LogJsonSpecification with AfterAll
     new TestActor.AutoPilot {
       def run(sender: ActorRef, msg: Any) = msg match {
         case q: Query =>
-          sender ! List(log)
+          sender ! Seq(log)
           TestActor.KeepRunning
         case _ => TestActor.NoAutoPilot
       }
@@ -54,6 +55,15 @@ class QueryServiceTest extends LogJsonSpecification with AfterAll
       }
       Get(Uri("/query")) ~> queryRoute ~> check {
         status === StatusCodes.BadRequest
+      }
+    }
+
+    "reject another methods" in {
+      Put(Uri("/query").withQuery(Map("query" -> "name = 'log'"))) ~> queryRoute ~> check {
+        rejection === MethodRejection(HttpMethods.GET)
+      }
+      Post(Uri("/query").withQuery(Map("query" -> "name != 'log'"))) ~> queryRoute ~> check {
+        rejection === MethodRejection(HttpMethods.GET)
       }
     }
   }

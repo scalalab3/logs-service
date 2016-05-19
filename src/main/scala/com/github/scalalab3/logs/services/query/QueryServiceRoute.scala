@@ -19,9 +19,8 @@ trait QueryServiceRoute extends HttpService {
   implicit val timeout = Timeout(5.seconds)
   implicit val exc = actorRefFactory.dispatcher
 
-  val queryRoute = path("query") {
-    get {
-      parameter('query.?) { stringOption =>
+  val queryRoute = get {
+    (path("query") & parameter('query.?)) { stringOption =>
         complete {
           val res = for {
             string <- stringOption
@@ -32,7 +31,6 @@ trait QueryServiceRoute extends HttpService {
             case None => (StatusCodes.BadRequest, "Wrong query")
           }
         }
-      }
     }
   }
 }

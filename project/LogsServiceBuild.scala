@@ -49,7 +49,7 @@ object LogsServiceBuild extends Build {
     "org.specs2" %% "specs2-core" % specsV,
     "org.specs2" %% "specs2-matcher-extra" % specsV,
     "org.specs2" %% "specs2-mock" % specsV,
-    "io.spray" %% "spray-testkit" % sprayV exclude("org.specs2", "specs2_2.11")
+    "io.spray" %% "spray-testkit" % sprayV
   )
 
   val commonSettings = baseSettings ++ Seq(

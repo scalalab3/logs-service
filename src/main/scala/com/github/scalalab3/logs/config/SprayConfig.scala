@@ -2,7 +2,7 @@ package com.github.scalalab3.logs.config
 
 import com.github.scalalab3.logs.common.config.ConfigLoad
 import com.github.scalalab3.logs.config.Keys._
-import com.github.scalalab3.logs.config.Values._
+import com.github.scalalab3.logs.config.DefaultValues._
 
 case class SprayConfig(host: String, port: Int)
 
