@@ -49,6 +49,7 @@ object LogsServiceBuild extends Build {
     "com.typesafe.akka" %% "akka-testkit" % akkaV,
     "org.specs2" %% "specs2-core" % specsV,
     "org.specs2" %% "specs2-matcher-extra" % specsV,
+    "org.specs2" %% "specs2-mock" % specsV,
     "io.spray" %% "spray-testkit" % sprayV
   )
 

@@ -5,7 +5,6 @@ import akka.testkit.{ImplicitSender, TestKit}
 import org.specs2.matcher.MatcherMacros
 import org.specs2.mutable.{After, SpecificationLike}
 
-
 abstract class AkkaSpec extends TestKit(ActorSystem())
   with ImplicitSender
   with After
