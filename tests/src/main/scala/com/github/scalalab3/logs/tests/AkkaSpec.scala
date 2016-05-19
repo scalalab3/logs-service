@@ -1,5 +1,7 @@
 package com.github.scalalab3.logs.tests
 
+import scala.concurrent.duration._
+
 import akka.actor.{ActorSystem, DeadLetter}
 import akka.testkit.{ImplicitSender, TestKit}
 import org.specs2.matcher.MatcherMacros
@@ -13,6 +15,7 @@ abstract class AkkaSpec extends TestKit(ActorSystem())
     with SpecificationLike
     with MatcherMacros {
 
+  val period = 500.millis
   system.eventStream.subscribe(testActor, classOf[DeadLetter])
 
   def after = expectNoMsg

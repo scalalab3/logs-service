@@ -11,4 +11,13 @@ case object Error extends Level
 
 object Level extends {
   val values: Seq[Level] = Seq(Debug, Info, Warn, Error)
-} with Values[Level]
+} with Values[Level] {
+
+  implicit def fromString(s:String) = s.toLowerCase match {
+    case "debug" => Debug
+    case "info" => Info
+    case "warn" => Warn
+    case "error" => Error
+    case _ => Debug
+  }
+}
