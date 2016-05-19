@@ -31,9 +31,6 @@ object LogsServiceBuild extends Build {
   val sprayV = "1.3.3"
   val baseDeps = Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaV,
-    "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
-    "org.specs2" %% "specs2-core" % specsV % "test",
-    "org.specs2" %% "specs2-matcher-extra" % specsV % "test",
     "com.chuusai" %% "shapeless" % "2.3.0",
     "org.scala-lang" % "scala-reflect" % "2.11.8",
     "org.scalaz" %% "scalaz-core" % "7.2.2",
@@ -41,7 +38,9 @@ object LogsServiceBuild extends Build {
     "org.slf4j" % "slf4j-log4j12" % "1.7.21",
     "io.spray" %% "spray-can" % sprayV,
     "io.spray" %% "spray-routing-shapeless2" % sprayV,
+    "io.spray" %% "spray-http" % sprayV,
     "io.spray" %% "spray-httpx" % sprayV,
+    "io.spray" %% "spray-util" % sprayV,
     "io.spray" %% "spray-json" % "1.3.2"
   )
 
@@ -50,7 +49,7 @@ object LogsServiceBuild extends Build {
     "org.specs2" %% "specs2-core" % specsV,
     "org.specs2" %% "specs2-matcher-extra" % specsV,
     "org.specs2" %% "specs2-mock" % specsV,
-    "io.spray" %% "spray-testkit" % sprayV
+    "io.spray" %% "spray-testkit" % sprayV exclude("org.specs2", "specs2_2.11")
   )
 
   val commonSettings = baseSettings ++ Seq(
