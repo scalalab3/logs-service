@@ -37,7 +37,12 @@ object LogsServiceBuild extends Build {
       "org.scala-lang" % "scala-reflect" % "2.11.8",
       "org.scalaz" %% "scalaz-core" % "7.2.2",
       "com.typesafe" % "config" % "1.3.0",
-      "org.slf4j" % "slf4j-log4j12" % "1.7.21"
+      "org.slf4j" % "slf4j-log4j12" % "1.7.21",
+      "org.java-websocket" % "Java-WebSocket" % "1.3.0",
+      "com.rethinkdb" % "rethinkdb-driver" % "2.2-beta-6",
+      "org.slf4j" % "slf4j-simple" % "1.7.21",
+      "com.typesafe.play" %% "play-json" % "2.5.1",
+      "com.typesafe.akka" %% "akka-stream-experimental" % "2.0.4"
   )
 
   val testDeps = Seq(
