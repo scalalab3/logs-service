@@ -6,7 +6,6 @@ import java.util.UUID
 import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.common.query._
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
-import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
 import org.specs2.mutable.Specification
 import org.specs2.specification._
 

@@ -1,7 +1,6 @@
 package com.github.scalalab3.logs.storage.rethink
 
 import com.github.scalalab3.logs.storage.rethink.RethinkImplicits._
-import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
 import com.rethinkdb.RethinkDB
 import com.rethinkdb.gen.ast.{Db, Table}
 import com.rethinkdb.net.Connection

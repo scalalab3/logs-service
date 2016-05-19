@@ -1,7 +1,7 @@
 package com.github.scalalab3.logs.components
 
 import com.github.scalalab3.logs.common.query.Query
-import com.github.scalalab3.logs.parser.{QueryParserImpl, QueryParser}
+import com.github.scalalab3.logs.parser.QueryParserImpl
 
 trait QueryServiceComponentImpl extends QueryServiceComponent {
 

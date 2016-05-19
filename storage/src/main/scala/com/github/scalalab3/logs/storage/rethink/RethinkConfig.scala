@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.storage.rethink.config
+package com.github.scalalab3.logs.storage.rethink
 
 import com.github.scalalab3.logs.common.config.ConfigLoad
 import com.github.scalalab3.logs.storage.rethink.config.DefaultValues._
