@@ -1,7 +1,7 @@
 package com.github.scalalab3.logs.tests
 
-import org.specs2.execute.{ Failure, FailureException }
-import org.specs2.specification.core.{ Fragments, SpecificationStructure }
+import org.specs2.execute.{Failure, FailureException}
+import org.specs2.specification.core.{Fragments, SpecificationStructure}
 import org.specs2.specification.create.DefaultFragmentFactory
 import spray.testkit.TestFrameworkInterface
 

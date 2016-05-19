@@ -1,8 +1,7 @@
 package com.github.scalalab3.logs.storage.rethink.config
 
-import com.github.scalalab3.logs.common.config.ConfigLoad
-import com.github.scalalab3.logs.storage.rethink.config.DefaultValues._
-import com.github.scalalab3.logs.storage.rethink.config.Keys._
+import com.github.scalalab3.logs.storage.rethink.config.RethinkKeys._
+import com.typesafe.config.ConfigFactory
 
 case class RethinkConfig(host: String,
                          port: Int,
@@ -12,23 +11,15 @@ case class RethinkConfig(host: String,
                          tableName: String)
 
 object RethinkConfig {
-  private val config = new ConfigLoad()
+  private val config = ConfigFactory.load()
 
   def load(): RethinkConfig =
     RethinkConfig(
-      config.getString(host, defaultHost),
-      config.getInt(port, defaultPort),
-      config.getString(user, defaultUser),
-      config.getString(password, defaultPassword),
-      config.getString(dbName, defaultDbName),
-      config.getString(tableName, defaultTableName)
+      config.getString(host),
+      config.getInt(port),
+      config.getString(user),
+      config.getString(password),
+      config.getString(dbName),
+      config.getString(tableName)
     )
-
-  val default = RethinkConfig(
-    host = defaultHost,
-    port = defaultPort,
-    user = defaultUser,
-    password = defaultPassword,
-    dbName = defaultDbName,
-    tableName = defaultTableName)
 }

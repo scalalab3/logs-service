@@ -15,7 +15,7 @@ import scala.util.Try
 class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
   sequential
 
-  val tryRethinkContext = Try(new RethinkContext(RethinkConfig.default))
+  val tryRethinkContext = Try(new RethinkContext(RethinkConfig.load()))
 
   "LogStorageComponentImpl Test" >> {
 

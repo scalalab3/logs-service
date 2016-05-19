@@ -17,9 +17,9 @@ object JsonFormatImplicits {
     def read(value: JsValue) = value match {
       case JsString(x) => Level.valueOfCaseSensitive(x) match {
         case Some(level) => level
-        case None => deserializationError("Expected Level as JsString, but got " + x)
+        case None => deserializationError(s"Expected Level as JsString, but got $x")
       }
-      case x => deserializationError("Expected Level as JsString, but got " + x)
+      case x => deserializationError(s"Expected Level as JsString, but got $x")
     }
 
   }
@@ -31,9 +31,9 @@ object JsonFormatImplicits {
     def read(value: JsValue) = value match {
       case JsString(x) => Try(OffsetDateTime.parse(x)) match {
         case Success(t) => t
-        case Failure(e) => deserializationError(s"Expected OffsetDateTime as JsString, but got $x", e)
+        case Failure(e) => deserializationError(Option(e.getMessage).getOrElse(s"Expected OffsetDateTime as JsString, but got $x"))
       }
-      case x => deserializationError("Expected OffsetDateTime as JsString, but got " + x)
+      case x => deserializationError(s"Expected OffsetDateTime as JsString, but got $x")
     }
 
   }
@@ -45,7 +45,7 @@ object JsonFormatImplicits {
     def read(value: JsValue) = value match {
       case JsString(x) => Try(UUID.fromString(x)) match {
         case Success(v) => v
-        case Failure(e) => deserializationError(s"Expected UUID as JsString, but got $x")
+        case Failure(e) => deserializationError(Option(e.getMessage).getOrElse(s"Expected UUID as JsString, but got $x"))
       }
       case x => deserializationError(s"Expected UUID as JsString, but got $x")
     }

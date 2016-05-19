@@ -3,7 +3,6 @@ package com.github.scalalab3.logs.services.query
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.github.scalalab3.logs.common.query.Query
-import com.github.scalalab3.logs.components.QueryServiceComponentImpl
 import com.github.scalalab3.logs.tests.{GenLog, LogJsonSpecification, Specs2RouteTest}
 import org.specs2.specification.AfterAll
 import spray.http.{HttpMethods, StatusCodes, Uri}
@@ -11,8 +10,7 @@ import spray.routing.MethodRejection
 
 class QueryServiceTest extends LogJsonSpecification with AfterAll
   with Specs2RouteTest
-  with QueryServiceRoute
-  with QueryServiceComponentImpl {
+  with QueryServiceRoute {
 
   def actorRefFactory = system
 
