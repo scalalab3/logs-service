@@ -16,5 +16,4 @@ class LogJsonProtocolTest extends LogJsonSpecification {
 
     jsv must aLogWith(name = v.name, id = v.id.get.toString, dateTime = v.dateTime.toString)
   }
-
 }

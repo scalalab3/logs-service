@@ -9,7 +9,7 @@ import scala.util.{Failure, Success}
 class QueryServiceActor extends Actor {
 
   override def receive: Receive = {
-    case StorageRequest(storage, Request(string)) =>
+    case RequestStorage(Request(string), storage) =>
       string.map(parse) match {
         case None => sender ! BadRequest("Empty query")
         case Some(query) => query match {

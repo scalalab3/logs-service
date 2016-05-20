@@ -24,7 +24,7 @@ trait QueryServiceRoute extends HttpService {
   val queryRoute = get {
     (path("query") & parameter('query.?)) { string =>
       complete {
-        (queryActor ? StorageRequest(dbService, Request(string)))
+        (queryActor ? RequestStorage(Request(string), dbService))
           .mapTo[AbstractResponse].map(handler)
       }
     }

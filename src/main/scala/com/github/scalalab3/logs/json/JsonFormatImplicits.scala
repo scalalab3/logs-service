@@ -11,7 +11,6 @@ import scala.util.{Failure, Success, Try}
 object JsonFormatImplicits {
 
   implicit object LevelJsonFormat extends RootJsonFormat[Level] {
-
     def write(x: Level) = JsString(x.toString)
 
     def read(value: JsValue) = value match {
@@ -24,7 +23,6 @@ object JsonFormatImplicits {
   }
 
   implicit object OffsetDateTimeJsonFormat extends RootJsonFormat[OffsetDateTime] {
-
     def write(x: OffsetDateTime) = JsString(x.toString)
 
     def read(value: JsValue) = value match {
@@ -37,7 +35,6 @@ object JsonFormatImplicits {
   }
 
   implicit object UuidJsonFormat extends RootJsonFormat[UUID] {
-
     def write(x: UUID) = JsString(x.toString)
 
     def read(value: JsValue) = value match {

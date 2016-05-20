@@ -2,7 +2,7 @@ package com.github.scalalab3.logs.services.query
 
 import akka.actor.{ActorRef, ActorRefFactory, Props}
 import akka.testkit.{TestActor, TestProbe}
-import com.github.scalalab3.logs.services.messages.{LogsResponse, StorageRequest}
+import com.github.scalalab3.logs.services.messages.{LogsResponse, RequestStorage}
 import com.github.scalalab3.logs.services.{ActorCreationSupport, StorageProvider}
 import com.github.scalalab3.logs.tests.{GenLog, LogJsonSpecification, Specs2RouteTest}
 import org.specs2.specification.AfterAll
@@ -17,7 +17,7 @@ class QueryServiceTest extends LogJsonSpecification with AfterAll with Specs2Rou
   queryService.setAutoPilot {
     new TestActor.AutoPilot {
       def run(sender: ActorRef, msg: Any) = msg match {
-        case StorageRequest(_, _) => sender ! LogsResponse(Seq(log))
+        case RequestStorage(_, _) => sender ! LogsResponse(Seq(log))
           TestActor.KeepRunning
         case _ => TestActor.NoAutoPilot
       }
