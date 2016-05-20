@@ -21,7 +21,6 @@ object JsonFormatImplicits {
       }
       case x => deserializationError(s"Expected Level as JsString, but got $x")
     }
-
   }
 
   implicit object OffsetDateTimeJsonFormat extends RootJsonFormat[OffsetDateTime] {
@@ -30,12 +29,11 @@ object JsonFormatImplicits {
 
     def read(value: JsValue) = value match {
       case JsString(x) => Try(OffsetDateTime.parse(x)) match {
-        case Success(t) => t
-        case Failure(e) => deserializationError(Option(e.getMessage).getOrElse(s"Expected OffsetDateTime as JsString, but got $x"))
+        case Success(time) => time
+        case Failure(e) => deserializationError(e.getMessage)
       }
       case x => deserializationError(s"Expected OffsetDateTime as JsString, but got $x")
     }
-
   }
 
   implicit object UuidJsonFormat extends RootJsonFormat[UUID] {
@@ -44,12 +42,10 @@ object JsonFormatImplicits {
 
     def read(value: JsValue) = value match {
       case JsString(x) => Try(UUID.fromString(x)) match {
-        case Success(v) => v
-        case Failure(e) => deserializationError(Option(e.getMessage).getOrElse(s"Expected UUID as JsString, but got $x"))
+        case Success(uuid) => uuid
+        case Failure(e) => deserializationError(e.getMessage)
       }
       case x => deserializationError(s"Expected UUID as JsString, but got $x")
     }
-
   }
-
 }
