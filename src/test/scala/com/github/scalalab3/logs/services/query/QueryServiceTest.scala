@@ -46,7 +46,7 @@ class QueryServiceTest extends LogJsonSpecification with AfterAll with Specs2Rou
 
     "return logs in json format" in {
       Get(Uri("/query").withQuery("query" -> "999 min")) ~> queryRoute ~> check {
-        responseAs[String] must haveLogs(aLogWith(name = log.name, id = log.id.get.toString, dateTime = log.dateTime.toString))
+        responseAs[String] must haveLogs(aLogWith(name = log.name, id = log.id.get.toString, level = log.level.toString))
       }
     }
 
@@ -69,5 +69,3 @@ class QueryServiceTest extends LogJsonSpecification with AfterAll with Specs2Rou
     }
   }
 }
-
-

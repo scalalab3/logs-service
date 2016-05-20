@@ -38,17 +38,14 @@ object LogsServiceBuild extends Build {
     "org.slf4j" % "slf4j-log4j12" % "1.7.21",
     "io.spray" %% "spray-can" % sprayV,
     "io.spray" %% "spray-routing-shapeless2" % sprayV,
-    "io.spray" %% "spray-http" % sprayV,
     "io.spray" %% "spray-httpx" % sprayV,
-    "io.spray" %% "spray-util" % sprayV,
-    "io.spray" %% "spray-json" % "1.3.2"
+    "com.typesafe.play" %% "play-json" % "2.5.1"
   )
 
   val testDeps = Seq(
     "com.typesafe.akka" %% "akka-testkit" % akkaV,
     "org.specs2" %% "specs2-core" % specsV,
     "org.specs2" %% "specs2-matcher-extra" % specsV,
-    "org.specs2" %% "specs2-mock" % specsV,
     "io.spray" %% "spray-testkit" % sprayV
   )
 
