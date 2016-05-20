@@ -10,8 +10,11 @@ import spray.http.{HttpMethods, StatusCodes, Uri}
 import spray.routing.MethodRejection
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.DurationInt
 
 class QueryServiceTest extends LogJsonSpecification with AfterAll with Specs2RouteTest {
+
+  implicit val routeTestTimeout = RouteTestTimeout(5.second)
 
   val queryService = TestProbe()
   queryService.setAutoPilot {
