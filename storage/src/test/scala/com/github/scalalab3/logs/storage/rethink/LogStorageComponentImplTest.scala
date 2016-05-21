@@ -6,6 +6,7 @@ import java.util.UUID
 import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.common.query._
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
+import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
 import org.specs2.mutable.Specification
 import org.specs2.specification._
 
@@ -48,39 +49,36 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
       }
 
       "insert log" in {
-        storage.insert(log4) must_== true
+        storage.insert(log4) must beTrue
         storage.count() must_== 4
-        storage.insert(log4) must_== false
+        storage.insert(log4) must beFalse
         storage.count() must_== 4
       }
 
       "find last N logs" in {
-        storage.lastLogs(1).size must_== 1
-        storage.lastLogs(3).size must_== 3
-        storage.lastLogs(10).size must_== 4
+        storage.lastLogs(1) must have size 1
+        storage.lastLogs(3) must have size 3
+        storage.lastLogs(10) must have size 4
       }
 
       "filter logs by query" in {
-        storage.filter(Contains("name", "log")).size must_== 4
-        storage.filter(Contains("env", "test") and Eq("cause", "unknown")) must_== List(log1)
+        storage.filter(Contains("name", "log")) must have size 4
+        storage.filter(Contains("env", "test") and Eq("cause", "unknown")) must contain(exactly(log1))
         storage.filter(null) must_== Nil
-        storage.filter(Eq("env", "new") and Neq("level", "Error")) must_== List(log3)
-        storage.filter(Neq("level", "Debug") and Eq("env", "test") or Contains("stackTrace", "stackTrace"))
-          .sortBy(_.dateTime) must_== List(log2, log4)
+        storage.filter(Eq("env", "new") and Neq("level", "Error")) must contain(exactly(log3))
+        storage.filter(Neq("level", "Debug") and Eq("env", "test") or Contains("stackTrace", "stackTrace")) must contain(exactly(log2, log4))
         storage.filter(Contains("dateTime", "not a number")) must_== Nil
       }
 
       "filter logs by query with time" in {
         // 10000 sec
-        storage.filter(Until(Period(10000, Sec))).size must_== 4
+        storage.filter(Until(Period(10000, Sec))) must have size 4
 
         // 1 min .. 1 h
-        storage.filter(Period(1, Min) to Period(1, H)).sortBy(_.dateTime) must_== List(log2, log3)
+        storage.filter(Period(1, Min) to Period(1, H)).sortBy(_.dateTime) must contain(exactly(log2, log3))
 
         // name contains 'log' AND 10 min .. 30 min
-        storage.filter(
-          Contains("name", "log") and (Period(10, Min) to Period(30, Min))
-        ).sortBy(_.dateTime) must_== List(log3)
+        storage.filter(Contains("name", "log") and (Period(10, Min) to Period(30, Min))) must contain(exactly(log3))
       }
     } else "Skipped Test" >> skipped ("RethinkContext is not available in ")
   }

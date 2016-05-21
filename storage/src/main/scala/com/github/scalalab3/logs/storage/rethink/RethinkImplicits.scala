@@ -3,7 +3,6 @@ package com.github.scalalab3.logs.storage.rethink
 import java.util
 
 import com.github.scalalab3.logs.common_macro._
-import com.github.scalalab3.logs.storage.rethink.constant.ReqlConstant
 import com.rethinkdb.RethinkDB
 import com.rethinkdb.ast.ReqlAst
 import com.rethinkdb.gen.ast.{Db, ReqlFunction1, Table}
@@ -66,7 +65,7 @@ object RethinkImplicits {
     def insertSafe(map: HM): Boolean = {
       val res = for {
         m <- Typeable[HM].cast(table.insert(map).perform())
-        i <- Option(m.get(ReqlConstant.inserted))
+        i <- Option(m.get(ReqlConstants.inserted))
       } yield i
 
       res.contains(1L)

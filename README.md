@@ -7,12 +7,10 @@ Tasks description [here](https://github.com/scalalab3/logs-service/wiki).
 
 # Base modules structure
 
+* common_macro
 * common
-* core
 * parser
 * storage
-* ui
-* analytics
 * tests
 
 
@@ -30,7 +28,7 @@ After that all commands (test, compile, etc) will be ran only for that module.
 
 ## Testing
 
-You can see some example tests in `tests/src/test/scala/com/github/scallab3/logs/common.scala`
+You can see some example tests in `tests/src/test/scala/com/github/scalalab3/logs/common.scala`
 
 Consult with [structure doc](https://etorreborre.github.io/specs2/guide/SPECS2-3.7.2/org.specs2.guide.Structure.html) and [matchers doc](https://etorreborre.github.io/specs2/guide/SPECS2-3.7.2/org.specs2.guide.Matchers.html) to write matchers.
 
@@ -45,4 +43,4 @@ $ sbt main/assembly
 $ java -jar target/scala-2.11/main-assembly-0.0.1.jar
 ```
 
-Or jush run `./run.sh` in project root directory
+Or just run `./run.sh` in project root directory
