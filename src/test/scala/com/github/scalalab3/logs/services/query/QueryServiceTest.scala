@@ -1,8 +1,8 @@
 package com.github.scalalab3.logs.services.query
 
 import akka.actor.{Actor, ActorRef, ActorRefFactory}
-import akka.testkit.{TestActorRef, TestProbe}
-import com.github.scalalab3.logs.services.{LogsResponse, RequestStorage, StorageProvider}
+import akka.testkit.TestActorRef
+import com.github.scalalab3.logs.services.{LogsResponse, Request}
 import com.github.scalalab3.logs.tests.{GenLog, LogJsonSpecification, Specs2RouteTest}
 import spray.http.{HttpMethods, StatusCodes, Uri}
 import spray.routing.MethodRejection
@@ -11,14 +11,13 @@ class QueryServiceTest extends LogJsonSpecification with Specs2RouteTest {
 
   val queryTestService = TestActorRef(new Actor {
     def receive = {
-      case RequestStorage(_, _) => sender ! LogsResponse(Seq(log))
+      case Request(_) => sender ! LogsResponse(Seq(log))
     }
   })
 
-  val subject = new QueryServiceRoute with StorageProvider {
+  val subject = new QueryServiceRoute {
     override implicit def actorRefFactory: ActorRefFactory = system
-    override def dbService: ActorRef = TestProbe().ref
-    override val queryActor: ActorRef = queryTestService
+    override def queryService: ActorRef = queryTestService
   }
 
   val queryRoute = subject.queryRoute
@@ -50,10 +49,10 @@ class QueryServiceTest extends LogJsonSpecification with Specs2RouteTest {
     }
 
     "reject another methods" in {
-      Put(Uri("/query").withQuery(Map("query" -> "name = 'log'"))) ~> queryRoute ~> check {
+      Put(Uri("/query").withQuery("query" -> "name = 'log'")) ~> queryRoute ~> check {
         rejection === MethodRejection(HttpMethods.GET)
       }
-      Post(Uri("/query").withQuery(Map("query" -> "name != 'log'"))) ~> queryRoute ~> check {
+      Post(Uri("/query").withQuery("query" -> "name != 'log'")) ~> queryRoute ~> check {
         rejection === MethodRejection(HttpMethods.GET)
       }
     }
