@@ -15,6 +15,8 @@ trait LogStorageComponent {
     def filter(query: Query): List[Log]
 
     def lastLogs(n: Int): List[Log]
+
+    def changesCursor(): Iterator[Log]
   }
 
 }
