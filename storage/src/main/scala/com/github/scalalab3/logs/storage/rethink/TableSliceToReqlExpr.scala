@@ -1,6 +1,6 @@
 package com.github.scalalab3.logs.storage.rethink
 
-import com.github.scalalab3.logs.common.offset._
+import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.storage.rethink.ReqlConstants._
 import com.rethinkdb.RethinkDB.r
 import com.rethinkdb.gen.ast.{ReqlExpr, Table}
@@ -9,8 +9,8 @@ object TableSliceToReqlExpr {
 
   def apply(table: Table, slice: Slice): ReqlExpr = {
 
-    val start = slice.offset.startOffset
-    val end = slice.offset.endOffset
+    val start = slice.offset.start
+    val end = slice.offset.end
 
     table
       .orderBy()

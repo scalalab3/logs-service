@@ -2,7 +2,7 @@ package com.github.scalalab3.logs.services.read
 
 import akka.actor.{Actor, ActorRef, ActorRefFactory}
 import akka.testkit.TestActorRef
-import com.github.scalalab3.logs.services.{LogsResponse, Page}
+import com.github.scalalab3.logs.services.{Page, PageLogsResponse}
 import com.github.scalalab3.logs.tests.GenLog.randomLog
 import com.github.scalalab3.logs.tests.Specs2RouteTest
 import org.specs2.mutable.Specification
@@ -14,7 +14,7 @@ class ReadServiceRouteTest extends Specification with Specs2RouteTest {
 
   val readTestService = TestActorRef(new Actor {
     def receive = {
-      case Page(_, _) => sender ! LogsResponse(Seq(randomLog(), randomLog(), randomLog()))
+      case Page(_, _) => sender ! PageLogsResponse(Seq(randomLog(), randomLog(), randomLog()))
     }
   })
 

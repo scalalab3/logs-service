@@ -2,7 +2,7 @@ package com.github.scalalab3.logs.storage.rethink
 
 import java.util
 
-import com.github.scalalab3.logs.common.offset.Slice
+import com.github.scalalab3.logs.common.Slice
 import com.github.scalalab3.logs.common_macro._
 import com.rethinkdb.RethinkDB
 import com.rethinkdb.ast.ReqlAst

@@ -1,7 +1,6 @@
 package com.github.scalalab3.logs.storage
 
-import com.github.scalalab3.logs.common.Log
-import com.github.scalalab3.logs.common.offset.{Index, Slice}
+import com.github.scalalab3.logs.common.{Index, Slice, Log}
 import com.github.scalalab3.logs.common.query.Query
 
 trait LogStorageComponent {

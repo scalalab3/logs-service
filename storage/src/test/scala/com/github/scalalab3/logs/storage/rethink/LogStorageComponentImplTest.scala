@@ -4,8 +4,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 import com.github.scalalab3.logs.common._
-import com.github.scalalab3.logs.common.offset.Offset._
-import com.github.scalalab3.logs.common.offset.{Index, OffsetBound, Slice}
+import com.github.scalalab3.logs.common.Offset._
 import com.github.scalalab3.logs.common.query._
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
