@@ -39,7 +39,9 @@ object LogsServiceBuild extends Build {
     "io.spray" %% "spray-can" % sprayV,
     "io.spray" %% "spray-routing-shapeless2" % sprayV,
     "io.spray" %% "spray-httpx" % sprayV,
-    "com.typesafe.play" %% "play-json" % "2.5.1"
+    "com.typesafe.play" %% "play-json" % "2.5.1",
+    "org.java-websocket" % "Java-WebSocket" % "1.3.0",
+    "com.typesafe.akka" %% "akka-stream-experimental" % "2.0.4"
   )
 
   val testDeps = Seq(
