@@ -8,7 +8,7 @@ object TestRethinkConfig {
   private val config = ConfigFactory.load()
 
   def load(): RethinkConfig = RethinkConfig(
-    "46.101.108.45",
+    "localhost",
     28015,
     "admin",
     "",

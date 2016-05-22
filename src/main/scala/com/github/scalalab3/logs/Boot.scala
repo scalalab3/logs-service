@@ -22,7 +22,7 @@ object Boot extends App {
   implicit val mat = ActorMaterializer()
   val config = WebConfig.load()
 
-  val wsActor: ActorRef = system.actorOf(Props(classOf[WsApi], config.host, config.wsPort), "ws-actor")
+  val wsActor: ActorRef = system.actorOf(Props(classOf[WsApi], config), "ws-actor")
 
   system.actorOf(ChangesActor.props(storage, wsActor), "db-actor")
   println("Call boot")
