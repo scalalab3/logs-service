@@ -2,7 +2,6 @@ package com.github.scalalab3.logs.storage
 
 import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.common.query.Query
-import com.rethinkdb.net.Cursor
 
 trait LogStorageComponent {
 
@@ -17,7 +16,7 @@ trait LogStorageComponent {
 
     def lastLogs(n: Int): List[Log]
 
-    def changesCursor(): Cursor[Any]
+    def changesCursor(): Iterator[Log]
   }
 
 }

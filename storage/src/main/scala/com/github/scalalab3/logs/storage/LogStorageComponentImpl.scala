@@ -1,5 +1,7 @@
 package com.github.scalalab3.logs.storage
 
+import java.util
+
 import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.common.query.Query
 import com.github.scalalab3.logs.common_macro.ToMap._
@@ -43,6 +45,14 @@ trait LogStorageComponentImpl extends LogStorageComponent {
       case _ => Nil
     }
 
-    override def changesCursor(): Cursor[Any] = r.table().changes.run(connection)
+    import com.github.scalalab3.logs.common_macro._
+
+    import scala.collection.JavaConverters._
+
+    override def changesCursor(): Iterator[Log] = {
+      val cursor: Cursor[util.HashMap[String, HM]] = r.table().changes.run(connection)
+      cursor.iterator().asScala
+        .map(map => materialize[Log](map.get("new_val")).get)
+    }
   }
 }
