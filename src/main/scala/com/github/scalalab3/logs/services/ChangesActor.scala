@@ -8,10 +8,9 @@ import com.github.scalalab3.logs.storage.LogStorageComponent
 
 class ChangesActor(storage: LogStorageComponent, wsActor: ActorRef)(implicit mat: ActorMaterializer) extends AbstractService {
 
-  val NUMBER_OF_LAST_LOGS = 10
   implicit val system = context.system
 
-  private val source: Source[Log, Unit] = Source.fromIterator(() => storage.logStorage.changesCursor())
+  private val source: Source[Log, Unit] = Source.fromIterator(() => storage.logStorage.changes())
 
   val sink = Sink.actorRef(wsActor, "sent")
 

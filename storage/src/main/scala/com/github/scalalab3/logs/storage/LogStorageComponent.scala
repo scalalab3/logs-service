@@ -18,7 +18,7 @@ trait LogStorageComponent {
 
     def indexCreate(index: Index): Unit
 
-    def changesCursor(): Iterator[Log]
+    def changes(): Iterator[Log]
   }
 
 }
