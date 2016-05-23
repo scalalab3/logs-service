@@ -1,12 +1,11 @@
-package com.github.scalalab3.logs.services.query
+package com.github.scalalab3.logs.services
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.ActorRef
 import com.github.scalalab3.logs.parser.QueryParserImpl._
-import com.github.scalalab3.logs.services._
 
 import scala.util.{Failure, Success}
 
-class QueryServiceActor(dbService: ActorRef) extends Actor {
+class QueryServiceActor(dbService: ActorRef) extends AbstractService {
 
   override def receive: Receive = {
     case Request(string) =>

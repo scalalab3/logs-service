@@ -1,7 +1,8 @@
-package com.github.scalalab3.logs.services
+package com.github.scalalab3.logs.http
 
 import akka.util.Timeout
 import com.github.scalalab3.logs.json.LogJsonImplicits._
+import com.github.scalalab3.logs.services.{AbstractResponse, BadRequest, LogsResponse, PageLogsResponse}
 import spray.http.HttpHeaders.RawHeader
 import spray.http.{HttpEntity, HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable

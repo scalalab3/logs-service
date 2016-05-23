@@ -2,6 +2,7 @@ package com.github.scalalab3.logs.services.read
 
 import akka.actor.{Actor, ActorRef, ActorRefFactory}
 import akka.testkit.TestActorRef
+import com.github.scalalab3.logs.http.ReadServiceRoute
 import com.github.scalalab3.logs.services.{Page, PageLogsResponse}
 import com.github.scalalab3.logs.tests.GenLog.randomLog
 import com.github.scalalab3.logs.tests.Specs2RouteTest

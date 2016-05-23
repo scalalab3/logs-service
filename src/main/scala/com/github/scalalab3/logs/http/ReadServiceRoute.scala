@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.services.read
+package com.github.scalalab3.logs.http
 
 import akka.actor.ActorRef
 import akka.pattern.ask

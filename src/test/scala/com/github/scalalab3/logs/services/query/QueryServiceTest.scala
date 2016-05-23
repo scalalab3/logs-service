@@ -2,6 +2,7 @@ package com.github.scalalab3.logs.services.query
 
 import akka.actor.{Actor, ActorRef, ActorRefFactory}
 import akka.testkit.TestActorRef
+import com.github.scalalab3.logs.http.QueryServiceRoute
 import com.github.scalalab3.logs.services.{LogsResponse, Request}
 import com.github.scalalab3.logs.tests.{GenLog, LogJsonSpecification, Specs2RouteTest}
 import spray.http.{HttpMethods, StatusCodes, Uri}
