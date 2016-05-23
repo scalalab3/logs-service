@@ -39,7 +39,7 @@ object GenLog {
   def randomLog(): Log =
     Log(id = Some(randomUUID()),
       level = randomLevel(),
-      env = "test",
+      env = randomEnv().toString,
       name = s"log${Random.nextInt()}",
       dateTime = now,
       message = "some message",
@@ -48,4 +48,5 @@ object GenLog {
 
   def randomLevel(): Level = Level.values(Random.nextInt(Level.count))
 
+  def randomEnv(): Environment = Environment.values(Random.nextInt(Environment.count))
 }

@@ -1,12 +1,12 @@
-package com.github.scalalab3.logs.storage.rethink
+package com.github.scalalab3.logs.storage
 
 import java.time.OffsetDateTime
 import java.util.UUID
 
-import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.common.Offset._
+import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.common.query._
-import com.github.scalalab3.logs.storage.LogStorageComponentImpl
+import com.github.scalalab3.logs.storage.rethink.RethinkContext
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
 import org.specs2.mutable.Specification
 import org.specs2.specification._
@@ -16,8 +16,8 @@ import scala.util.Try
 class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
   sequential
 
-  val tryRethinkContext = Try(new RethinkContext(RethinkConfig(
-    host = "localhost", port = 28015, user = "admin", password = "", dbName = "test", tableName = "test")))
+  val config = RethinkConfig(Test)
+  val tryRethinkContext = Try(new RethinkContext(config))
 
   "LogStorageComponentImpl Test" >> {
 
@@ -53,7 +53,7 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
       "insert log" in {
         storage.insert(log4) must beTrue
         storage.count() must_== 4
-        storage.insert(log4) must beFalse
+        storage.insert(log2) must beFalse
         storage.count() must_== 4
       }
 
