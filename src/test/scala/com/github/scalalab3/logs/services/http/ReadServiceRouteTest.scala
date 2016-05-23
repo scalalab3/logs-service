@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.services.read
+package com.github.scalalab3.logs.services.http
 
 import akka.actor.{Actor, ActorRef, ActorRefFactory}
 import akka.testkit.TestActorRef
@@ -9,7 +9,7 @@ import com.github.scalalab3.logs.tests.Specs2RouteTest
 import org.specs2.mutable.Specification
 import spray.http.HttpHeaders.RawHeader
 import spray.http.{HttpMethods, StatusCodes, Uri}
-import spray.routing.MethodRejection
+import spray.routing.{ValidationRejection, MethodRejection}
 
 class ReadServiceRouteTest extends Specification with Specs2RouteTest {
 
@@ -27,7 +27,7 @@ class ReadServiceRouteTest extends Specification with Specs2RouteTest {
   val readRoute = subject.readRoute
 
   "ReadService should" >> {
-    "return Status OK for GET requests" in {
+    "return Status OK for GET valid requests" in {
       Get(Uri("/")) ~> readRoute ~> check {
         status === StatusCodes.OK
       }
@@ -40,8 +40,11 @@ class ReadServiceRouteTest extends Specification with Specs2RouteTest {
       Get(Uri("/").withQuery("per_page" -> "50")) ~> readRoute ~> check {
         status === StatusCodes.OK
       }
-      Get(Uri("/").withQuery("page" -> "3")) ~> readRoute ~> check {
-        status === StatusCodes.OK
+    }
+
+    "reject invalid requests" in {
+      Get(Uri("/").withQuery("page" -> "-1", "per_page" -> "0")) ~> readRoute ~> check {
+        rejection === ValidationRejection("The number and size of the page must be greater than 0.", None)
       }
     }
 

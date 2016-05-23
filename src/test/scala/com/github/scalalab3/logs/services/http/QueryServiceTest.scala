@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.services.query
+package com.github.scalalab3.logs.services.http
 
 import akka.actor.{Actor, ActorRef, ActorRefFactory}
 import akka.testkit.TestActorRef

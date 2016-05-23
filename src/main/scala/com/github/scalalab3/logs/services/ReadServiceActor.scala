@@ -8,7 +8,6 @@ class ReadServiceActor(dbService: ActorRef) extends AbstractService {
 
   override def receive: Receive = {
     case page @ Page(num, size) if num > 0 && size > 0 => dbService forward Slice(offset = bounds(page))
-    case _ => sender ! BadRequest("Bad request")
   }
 
   def bounds(page: Page): Offset = {
