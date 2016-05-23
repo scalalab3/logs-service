@@ -3,7 +3,7 @@ package com.github.scalalab3.logs.json
 import com.github.scalalab3.logs.common.{Level, Log}
 import play.api.libs.json.{JsString, JsValue, Json, Writes}
 import spray.http.ContentTypes.`application/json`
-import spray.httpx.marshalling.Marshaller
+import spray.http.HttpEntity
 
 object LogJsonImplicits {
   implicit val levelJsonFormat = new Writes[Level] {
@@ -12,5 +12,8 @@ object LogJsonImplicits {
 
   implicit val logFormat = Json.writes[Log]
 
-  implicit val marshaller = Marshaller.delegate[Seq[Log], String](`application/json`)(Json.toJson(_).toString())
+  implicit def toJsonHttpEntity(logs: Seq[Log]): HttpEntity = HttpEntity(
+      contentType = `application/json`,
+      string = Json.toJson(logs).toString()
+    )
 }

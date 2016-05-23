@@ -1,6 +1,6 @@
 package com.github.scalalab3.logs.storage
 
-import com.github.scalalab3.logs.common.Log
+import com.github.scalalab3.logs.common.{Index, Slice, Log}
 import com.github.scalalab3.logs.common.query.Query
 
 trait LogStorageComponent {
@@ -14,7 +14,9 @@ trait LogStorageComponent {
 
     def filter(query: Query): List[Log]
 
-    def lastLogs(n: Int): List[Log]
+    def slice(slice: Slice): List[Log]
+
+    def indexCreate(index: Index): Unit
 
     def changesCursor(): Iterator[Log]
   }

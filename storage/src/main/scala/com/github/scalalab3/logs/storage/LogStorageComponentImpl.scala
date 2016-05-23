@@ -1,5 +1,6 @@
 package com.github.scalalab3.logs.storage
 
+import com.github.scalalab3.logs.common.{Index, Slice, Log}
 import java.util
 
 import com.github.scalalab3.logs.common.Log
@@ -35,16 +36,14 @@ trait LogStorageComponentImpl extends LogStorageComponent {
         .getOrElse(Nil)
     }
 
-    override def lastLogs(n: Int): List[Log] = n match {
-      case v if v > 0 =>
-        r.table()
-          .cursorSafe()
-          .map(_.toScalaList[Log])
-          .map(_.sortBy(_.dateTime).reverse)
-          .map(_.take(n))
-          .getOrElse(Nil)
-      case _ => Nil
+    override def slice(slice: Slice): List[Log] = {
+      r.table()
+        .sliceSafe(slice)
+        .map(_.toScalaList[Log])
+        .getOrElse(Nil)
     }
+
+    override def indexCreate(index: Index): Unit = r.table().indexCreateSafe(index.name)
 
     override def changesCursor(): Iterator[Log] = {
       val cursor: Cursor[util.HashMap[String, HM]] = r.table().changes.run(connection)

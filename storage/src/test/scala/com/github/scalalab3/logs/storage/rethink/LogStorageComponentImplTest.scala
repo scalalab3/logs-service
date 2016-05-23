@@ -4,6 +4,7 @@ import java.time.OffsetDateTime
 import java.util.UUID
 
 import com.github.scalalab3.logs.common._
+import com.github.scalalab3.logs.common.Offset._
 import com.github.scalalab3.logs.common.query._
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
@@ -15,7 +16,8 @@ import scala.util.Try
 class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
   sequential
 
-  val tryRethinkContext = Try(new RethinkContext(RethinkConfig.load()))
+  val tryRethinkContext = Try(new RethinkContext(RethinkConfig(
+    host = "localhost", port = 28015, user = "admin", password = "", dbName = "test", tableName = "test")))
 
   "LogStorageComponentImpl Test" >> {
 
@@ -55,10 +57,11 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
         storage.count() must_== 4
       }
 
-      "find last N logs" in {
-        storage.lastLogs(1) must have size 1
-        storage.lastLogs(3) must have size 3
-        storage.lastLogs(10) must have size 4
+      "get logs by slice" in {
+        storage.indexCreate(Index()) // important for slice
+        storage.slice(Slice(offset = OffsetBound(0, isClosed = true) to OffsetBound(1, isClosed = false))) must have size 1
+        storage.slice(Slice(offset = OffsetBound(1, isClosed = true) to OffsetBound(10, isClosed = false))) must have size 3
+        storage.slice(Slice(offset = OffsetBound(0, isClosed = true) to OffsetBound(10, isClosed = false))) must have size 4
       }
 
       "filter logs by query" in {

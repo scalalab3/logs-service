@@ -1,7 +1,8 @@
-package com.github.scalalab3.logs.services.query
+package com.github.scalalab3.logs.services.http
 
 import akka.actor.{Actor, ActorRef, ActorRefFactory}
 import akka.testkit.TestActorRef
+import com.github.scalalab3.logs.http.QueryServiceRoute
 import com.github.scalalab3.logs.services.{LogsResponse, Request}
 import com.github.scalalab3.logs.tests.{GenLog, LogJsonSpecification, Specs2RouteTest}
 import spray.http.{HttpMethods, StatusCodes, Uri}
@@ -17,7 +18,7 @@ class QueryServiceTest extends LogJsonSpecification with Specs2RouteTest {
 
   val subject = new QueryServiceRoute {
     override implicit def actorRefFactory: ActorRefFactory = system
-    override def queryService: ActorRef = queryTestService
+    override def abstractService: ActorRef = queryTestService
   }
 
   val queryRoute = subject.queryRoute

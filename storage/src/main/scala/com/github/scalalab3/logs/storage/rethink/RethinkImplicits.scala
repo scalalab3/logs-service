@@ -2,6 +2,7 @@ package com.github.scalalab3.logs.storage.rethink
 
 import java.util
 
+import com.github.scalalab3.logs.common.Slice
 import com.github.scalalab3.logs.common_macro._
 import com.rethinkdb.RethinkDB
 import com.rethinkdb.ast.ReqlAst
@@ -26,6 +27,7 @@ object RethinkImplicits {
     res.getOrElse(false)
   }
 
+  /** r */
   implicit class RethinkDBExt(r: RethinkDB)(implicit c: Connection) {
     def dbList = Typeable[util.List[_]].cast(r.dbList().perform())
 
@@ -39,6 +41,7 @@ object RethinkImplicits {
     }
   }
 
+  /** Db */
   implicit class DbExt(db: Db)(implicit c: Connection) {
     def tableList = Typeable[util.List[_]].cast(db.tableList().perform())
 
@@ -52,6 +55,7 @@ object RethinkImplicits {
     }
   }
 
+  /** Table */
   implicit class TableExt(table: Table)(implicit c: Connection) {
     def cursorSafe(): Option[Cursor[HM]] = Typeable[Cursor[HM]].cast(table.perform())
 
@@ -74,8 +78,24 @@ object RethinkImplicits {
     def insertSafe[T](obj: T)(implicit toMap: T => HM): Boolean = insertSafe(toMap(obj))
 
     def countSafe(): Option[Long] = Typeable[Long].cast(table.count().perform())
+
+    def indexList = Typeable[util.List[_]].cast(table.indexList().perform())
+
+    def indexCreateSafe(name: String): Unit = {
+      if (!isExists(name, indexList)) {
+        table.indexCreate(name).perform()
+        table.indexWait(name).perform()
+      }
+    }
+
+    def sliceSafe(slice: Slice) = Try {
+      Typeable[Cursor[HM]].cast {
+        TableSliceToReqlExpr(table, slice).perform()
+      }
+    }.toOption.flatten
   }
 
+  /** Cursor */
   implicit class CursorExt(cursor: Cursor[HM]) {
     def toScalaList[T](implicit fromMap: HM => Option[T]): List[T] =
       cursor.toList.asScala.flatMap(fromMap(_)).toList

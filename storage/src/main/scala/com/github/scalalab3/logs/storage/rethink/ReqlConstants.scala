@@ -4,5 +4,7 @@ object ReqlConstants {
   val leftBound = "left_bound"
   val rightBound = "right_bound"
   val closed = "closed"
+  val open = "open"
+  val index = "index"
   val inserted = "inserted"
 }
