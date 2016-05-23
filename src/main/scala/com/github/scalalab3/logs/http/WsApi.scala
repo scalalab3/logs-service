@@ -23,7 +23,7 @@ class WsApi(val config: WebConfig) extends AbstractActor {
   socketServer.start()
   
   def receive = {
-    case changes: Log => socketServer.send(Json.toJson(changes).toString())
+    case change: Log => socketServer.send(Json.toJson(change).toString())
   }
 }
 

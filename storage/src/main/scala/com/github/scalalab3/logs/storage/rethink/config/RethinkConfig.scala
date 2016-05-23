@@ -12,7 +12,7 @@ case class RethinkConfig(host: String,
                          tableName: String)
 
 object RethinkConfig {
-  private val config: Config = ConfigFactory.load()
+  private val config = ConfigFactory.load()
 
   def apply(): RethinkConfig = load(config)
 

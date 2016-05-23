@@ -1,8 +1,7 @@
-package com.github.scalalab3.logs
+package com.github.scalalab3.logs.tests
 
 import akka.actor.{Actor, Props}
 import com.github.scalalab3.logs.common.Log
-import com.github.scalalab3.logs.tests.{AkkaSpec, GenLog}
 
 import scala.concurrent.duration._
 

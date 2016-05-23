@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs
+package com.github.scalalab3.logs.tests
 
 import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.common.util.Keys

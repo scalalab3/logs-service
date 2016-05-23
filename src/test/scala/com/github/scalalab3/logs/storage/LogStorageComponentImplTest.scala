@@ -16,8 +16,7 @@ import scala.util.Try
 class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
   sequential
 
-  val config = RethinkConfig(Test)
-  val tryRethinkContext = Try(new RethinkContext(config))
+  val tryRethinkContext = Try(new RethinkContext(RethinkConfig(Test)))
 
   "LogStorageComponentImpl Test" >> {
 
@@ -53,7 +52,7 @@ class LogStorageComponentImplTest extends Specification with BeforeAfterAll {
       "insert log" in {
         storage.insert(log4) must beTrue
         storage.count() must_== 4
-        storage.insert(log2) must beFalse
+        storage.insert(log4) must beFalse
         storage.count() must_== 4
       }
 
