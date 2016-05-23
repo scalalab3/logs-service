@@ -1,30 +1,23 @@
 package com.github.scalalab3.logs
 
-import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.stream.ActorMaterializer
+import akka.actor.{ActorSystem, Props}
+import akka.io.IO
+import akka.util.Timeout
 import com.github.scalalab3.logs.config.WebConfig
-import com.github.scalalab3.logs.http.WsApi
-import com.github.scalalab3.logs.services.{ChangesActor, SystemActor}
-import com.github.scalalab3.logs.storage.LogStorageComponentImpl
-import com.github.scalalab3.logs.storage.rethink.RethinkContext
-import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
+import com.github.scalalab3.logs.services._
+import spray.can.Http
+
+import scala.concurrent.duration._
 
 object Boot extends App {
+  val config = WebConfig()
 
+  implicit val timeout = Timeout(5.seconds)
   implicit val system = ActorSystem("logs-service")
-  system.actorOf(Props(classOf[SystemActor]), "system-actor")
 
-  implicit val rethinkContext = new RethinkContext(RethinkConfig.load())
-  val storage = new LogStorageComponentImpl {
-    override val logStorage: LogStorage = new LogStorageImpl()
-  }
+  val systemActor = system.actorOf(Props[SystemActor], "system-actor")
 
-  implicit val mat = ActorMaterializer()
-  val config = WebConfig.load()
+  IO(Http) ! Http.Bind(systemActor, interface = config.host, port = config.port)
 
-  val wsActor: ActorRef = system.actorOf(Props(classOf[WsApi], config), "ws-actor")
-
-  system.actorOf(ChangesActor.props(storage, wsActor), "db-actor")
   println("Call boot")
-
 }
