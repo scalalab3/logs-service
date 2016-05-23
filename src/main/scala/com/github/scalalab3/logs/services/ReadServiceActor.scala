@@ -4,7 +4,7 @@ import akka.actor.ActorRef
 import com.github.scalalab3.logs.common.Offset._
 import com.github.scalalab3.logs.common._
 
-class ReadServiceActor(dbService: ActorRef) extends AbstractService {
+class ReadServiceActor(dbService: ActorRef) extends AbstractActor {
 
   override def receive: Receive = {
     case page @ Page(num, size) if num > 0 && size > 0 => dbService forward Slice(offset = bounds(page))

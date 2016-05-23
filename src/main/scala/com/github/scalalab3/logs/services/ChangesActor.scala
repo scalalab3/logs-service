@@ -6,7 +6,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import com.github.scalalab3.logs.common.Log
 import com.github.scalalab3.logs.storage.LogStorageComponent
 
-class ChangesActor(storage: LogStorageComponent, wsActor: ActorRef)(implicit mat: ActorMaterializer) extends AbstractService {
+class ChangesActor(storage: LogStorageComponent, wsActor: ActorRef)(implicit mat: ActorMaterializer) extends AbstractActor {
 
   implicit val system = context.system
 

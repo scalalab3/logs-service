@@ -5,7 +5,7 @@ import com.github.scalalab3.logs.parser.QueryParserImpl._
 
 import scala.util.{Failure, Success}
 
-class QueryServiceActor(dbService: ActorRef) extends AbstractService {
+class QueryServiceActor(dbService: ActorRef) extends AbstractActor {
 
   override def receive: Receive = {
     case Request(string) =>
