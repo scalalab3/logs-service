@@ -1,5 +1,6 @@
 package com.github.scalalab3.logs.http
 
+import akka.actor.ActorRef
 import akka.util.Timeout
 import com.github.scalalab3.logs.json.LogJsonImplicits._
 import com.github.scalalab3.logs.services.{AbstractResponse, BadRequest, LogsResponse, PageLogsResponse}
@@ -16,6 +17,8 @@ trait AbstractHttpService extends HttpService {
   implicit val timeout = Timeout(5.seconds)
 
   implicit def executionContext = actorRefFactory.dispatcher
+
+  def abstractService: ActorRef
 
   def pass(future: Future[Any]): Future[ToResponseMarshallable] = future.mapTo[AbstractResponse].map(handler)
 

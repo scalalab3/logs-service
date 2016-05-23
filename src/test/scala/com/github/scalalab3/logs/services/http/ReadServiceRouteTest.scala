@@ -21,7 +21,7 @@ class ReadServiceRouteTest extends Specification with Specs2RouteTest {
 
   val subject = new ReadServiceRoute {
     override implicit def actorRefFactory: ActorRefFactory = system
-    override def readService: ActorRef = readTestService
+    override def abstractService: ActorRef = readTestService
   }
 
   val readRoute = subject.readRoute
