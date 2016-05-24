@@ -8,5 +8,9 @@ case class WebConfig(host: String, port: Int, wsPort: Int)
 object WebConfig {
   private val config = ConfigFactory.load()
 
-  def load(): WebConfig = WebConfig(config.getString(host), config.getInt(port), config.getInt(wsPort))
+  def load(): WebConfig = WebConfig(
+    config.getString(sprayHost),
+    config.getInt(sprayPort),
+    config.getInt(wsPort)
+  )
 }

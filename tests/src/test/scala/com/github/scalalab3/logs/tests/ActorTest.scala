@@ -1,14 +1,9 @@
-package com.github.scalalab3.logs
+package com.github.scalalab3.logs.tests
 
 import akka.actor.{Actor, Props}
 import com.github.scalalab3.logs.common.Log
-import com.github.scalalab3.logs.tests.{GenLog, AkkaSpec}
-import org.specs2.matcher.MatcherMacros
-import org.specs2.mutable.Specification
 
 import scala.concurrent.duration._
-
-abstract class DefaultSpec extends Specification with MatcherMacros
 
 class EchoActor extends Actor {
   def receive = {
@@ -26,8 +21,6 @@ class ActorTest extends AkkaSpec {
       receiveOne(500.millis) match {
         case received: Log =>
           received must_== msg
-          received must matchA[Log]
-          received must matchA[Log].message(msg.message)
       }
     }
   }

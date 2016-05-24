@@ -5,15 +5,15 @@ import akka.stream.ActorMaterializer
 import akka.testkit.TestProbe
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.RethinkContext
+import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
 import com.github.scalalab3.logs.tests.GenLog
 import org.specs2.mutable.Specification
 
 import scala.util.Try
 
-
 class ChangesTest extends Specification {
 
-  val tryRethinkContext: Try[RethinkContext] = Try(new RethinkContext(TestRethinkConfig.load()))
+  val tryRethinkContext = Try(new RethinkContext(RethinkConfig.load()))
 
   if (tryRethinkContext.isSuccess) {
 

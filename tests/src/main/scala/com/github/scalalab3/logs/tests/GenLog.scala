@@ -38,14 +38,11 @@ object GenLog {
 
   def randomLog(): Log =
     Log(id = Some(randomUUID()),
-      level = randomLevel(),
+      level = Level.random,
       env = "test",
       name = s"log${Random.nextInt()}",
       dateTime = now,
       message = "some message",
       cause = "unknown",
       stackTrace = "empty")
-
-  def randomLevel(): Level = Level.values(Random.nextInt(Level.count))
-
 }

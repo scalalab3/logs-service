@@ -5,13 +5,13 @@ import java.net.InetSocketAddress
 import akka.event.LoggingAdapter
 import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.config.WebConfig
-import com.github.scalalab3.logs.services.AbstractService
+import com.github.scalalab3.logs.services.AbstractActor
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
 import org.java_websocket.server.WebSocketServer
 import play.api.libs.json._
 
-class WsApi(val config: WebConfig) extends AbstractService {
+class WsApi(val config: WebConfig) extends AbstractActor {
   import com.github.scalalab3.logs.json.LogJsonImplicits._
 
   log.info("WS Api start...")
@@ -23,8 +23,7 @@ class WsApi(val config: WebConfig) extends AbstractService {
   socketServer.start()
   
   def receive = {
-    case changes: Log =>
-      socketServer.send(Json.toJson(changes).toString())
+    case change: Log => socketServer.send(Json.toJson(change).toString())
   }
 }
 

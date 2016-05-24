@@ -59,6 +59,8 @@ object RethinkImplicits {
   implicit class TableExt(table: Table)(implicit c: Connection) {
     def cursorSafe(): Option[Cursor[HM]] = Typeable[Cursor[HM]].cast(table.perform())
 
+    def changesSafe(): Option[Cursor[HM]] = Typeable[Cursor[HM]].cast(table.changes().perform())
+
     def filterSafe(func1: ReqlFunction1): Option[Cursor[HM]] = Try {
       Typeable[Cursor[HM]].cast {
         table.filter(func1).perform()
@@ -99,6 +101,13 @@ object RethinkImplicits {
   implicit class CursorExt(cursor: Cursor[HM]) {
     def toScalaList[T](implicit fromMap: HM => Option[T]): List[T] =
       cursor.toList.asScala.flatMap(fromMap(_)).toList
+
+    def toScalaIterator[T](implicit fromMap: HM => Option[T]): Iterator[T] = {
+      cursor.iterator.asScala.flatMap { next =>
+        val map = next.get(ReqlConstants.newVal)
+        Typeable[HM].cast(map)
+      }.flatMap(fromMap(_))
+    }
   }
 
   implicit val typeableCursor: Typeable[Cursor[HM]] =

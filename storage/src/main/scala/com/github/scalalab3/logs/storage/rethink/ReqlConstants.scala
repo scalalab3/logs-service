@@ -7,4 +7,5 @@ object ReqlConstants {
   val open = "open"
   val index = "index"
   val inserted = "inserted"
+  val newVal = "new_val"
 }
