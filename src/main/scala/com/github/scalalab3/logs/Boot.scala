@@ -14,13 +14,13 @@ object Boot extends App {
   implicit val system = ActorSystem("logs-service")
   system.actorOf(Props(classOf[SystemActor]), "system-actor")
 
-  implicit val rethinkContext = new RethinkContext(RethinkConfig())
+  implicit val rethinkContext = new RethinkContext(RethinkConfig.load())
   val storage = new LogStorageComponentImpl {
     override val logStorage: LogStorage = new LogStorageImpl()
   }
 
   implicit val mat = ActorMaterializer()
-  val config = WebConfig()
+  val config = WebConfig.load()
 
   val wsActor: ActorRef = system.actorOf(Props(classOf[WsApi], config), "ws-actor")
 

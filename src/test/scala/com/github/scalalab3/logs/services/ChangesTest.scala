@@ -3,7 +3,6 @@ package com.github.scalalab3.logs.services
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.testkit.TestProbe
-import com.github.scalalab3.logs.common.Test
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.RethinkContext
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
@@ -14,7 +13,7 @@ import scala.util.Try
 
 class ChangesTest extends Specification {
 
-  val tryRethinkContext = Try(new RethinkContext(RethinkConfig(Test)))
+  val tryRethinkContext = Try(new RethinkContext(RethinkConfig.load()))
 
   if (tryRethinkContext.isSuccess) {
 
