@@ -12,7 +12,7 @@ import org.java_websocket.server.WebSocketServer
 import play.api.libs.json._
 
 class WsApi(val config: WebConfig) extends AbstractActor {
-  import com.github.scalalab3.logs.json.LogJsonImplicits._
+  import com.github.scalalab3.logs.common.json.LogJsonImplicits._
 
   log.info("WS Api start...")
 
@@ -21,7 +21,7 @@ class WsApi(val config: WebConfig) extends AbstractActor {
 
   val socketServer = new SocketServer(config.host, config.wsPort, log)
   socketServer.start()
-  
+
   def receive = {
     case change: Log => socketServer.send(Json.toJson(change).toString())
   }

@@ -1,4 +1,4 @@
-package com.github.scalalab3.logs.json
+package com.github.scalalab3.logs.common.json
 
 import com.github.scalalab3.logs.common.{Level, Log}
 import play.api.libs.json.{JsString, JsValue, Json, Writes}
