@@ -42,7 +42,7 @@ class Client (host:String, port:Int, out:ActorRef) extends Actor {
 
 class TCPListenerTest extends AkkaSpec {
   sequential  // cannot run parallel tests due to port is hardcoded
-  val host = "127.0.0.1"
+  val host = "0.0.0.0"
   val port = 15000
   val log = system.actorOf(Props(classOf[TCPListener], host, port, testActor), "listener")
   val logMsg = randomLog()
