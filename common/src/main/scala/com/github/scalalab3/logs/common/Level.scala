@@ -13,11 +13,5 @@ object Level extends {
   val values: Seq[Level] = Seq(Debug, Info, Warn, Error)
 } with Values[Level] {
 
-  implicit def fromString(s:String) = s.toLowerCase match {
-    case "debug" => Debug
-    case "info" => Info
-    case "warn" => Warn
-    case "error" => Error
-    case _ => Debug
-  }
+  implicit def fromString(s:String) =  Level.valueOfCaseInsensitive(s) getOrElse Debug
 }
