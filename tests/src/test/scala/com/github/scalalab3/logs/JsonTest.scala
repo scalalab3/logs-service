@@ -6,7 +6,7 @@ import com.github.scalalab3.logs.tests.GenLog.randomLog
 import com.github.scalalab3.logs.tests.DefaultSpec
 import common.{Log, Level, Debug, Info}
 import com.github.scalalab3.logs.common.json.LogJsonImplicits._
-import common_macro._
+import com.github.scalalab3.logs.common_macro._
 
 
 class JsonTest extends DefaultSpec {

@@ -9,6 +9,7 @@ import com.github.scalalab3.logs.tests.GenLog.randomLog
 import com.github.scalalab3.logs.tests.AkkaSpec
 import play.api.libs.json.Json
 import com.github.scalalab3.logs.common.json.LogJsonImplicits._
+import services.{TCPListener, Ready}
 
 
 sealed trait TestMsg
@@ -49,7 +50,7 @@ class TCPListenerTest extends AkkaSpec {
 
   "Listener ready" >> {
     receiveOne(period) match {
-      case "ready" => ok
+      case Ready => ok
     }
   }
 

@@ -10,3 +10,5 @@ case class PageLogsResponse(logs: Seq[Log]) extends AbstractResponse
 
 case class Request(query: Option[String])
 case class Page(number: Int, size: Int)
+
+case object Ready
