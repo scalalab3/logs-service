@@ -11,4 +11,7 @@ case object Error extends Level
 
 object Level extends {
   val values: Seq[Level] = Seq(Debug, Info, Warn, Error)
-} with Values[Level]
+} with Values[Level] {
+
+  implicit def fromString(s:String) =  Level.valueOfCaseInsensitive(s) getOrElse Debug
+}
