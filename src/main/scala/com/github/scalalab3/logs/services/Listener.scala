@@ -1,9 +1,9 @@
 package com.github.scalalab3.logs.services
 
 import java.net.InetSocketAddress
-import scala.util.{Try, Success, Failure}
+import scala.util.Try
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{ActorRef, Props}
 import akka.io.{IO, Tcp}
 import play.api.libs.json.{Json, JsValue}
 
@@ -17,25 +17,21 @@ trait BaseListener extends AbstractActor {
 }
 
 
-class LineReceiver (out:ActorRef) extends BaseListener {
+class LineReceiver (override val output:ActorRef) extends BaseListener {
   import Tcp._
   import com.github.scalalab3.logs.common_macro._
 
-  val output = out
-
   def receive = {
-    case Received(data) => {
-      log.info(s"Received: [${data.utf8String}]")
-      parseLine(data.utf8String)
-    }
+    case Received(data) => parseLine(data.utf8String)
     case PeerClosed => context stop self
+    case ErrorClosed(cause) => context stop self
   }
 
   def parseLine(line:String) = Try(Json.parse(line))
     .map(materialize[Log](_).foreach(writeLog _))
 }
 
-class TCPListener(host:String, port:Int, out:ActorRef) extends Actor with ActorLogging {
+class TCPListener(host:String, port:Int, out:ActorRef) extends AbstractActor {
   import context.system
   import Tcp._
 
@@ -43,10 +39,7 @@ class TCPListener(host:String, port:Int, out:ActorRef) extends Actor with ActorL
   IO(Tcp) ! Bind(self, new InetSocketAddress(host, port))
 
   def receive = {
-    case bound@Bound(localAddress) => {
-      log.info(s"Bound: bound")
-      out ! Ready
-    }
+    case bound@Bound(localAddress) => out ! Ready
     case connected@Connected(remote, local) => {
       val handler = context.actorOf(Props(classOf[LineReceiver], out))
       val conn = sender()
@@ -56,6 +49,5 @@ class TCPListener(host:String, port:Int, out:ActorRef) extends Actor with ActorL
       log.warning(s"Bind failed: $msg")
       context stop self
     }
-    case msg => log.info(s"Got other msg: $msg")
   }
 }
