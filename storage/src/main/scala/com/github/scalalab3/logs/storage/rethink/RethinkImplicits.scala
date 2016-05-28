@@ -120,7 +120,7 @@ object RethinkImplicits {
         }
       }
 
-      override def describe: String = "Cursor[HM]"
+      override def describe: String = "Cursor[util.HashMap[String, Any]]"
     }
 
   implicit val typeableList: Typeable[util.List[_]] =
@@ -133,7 +133,7 @@ object RethinkImplicits {
         }
       }
 
-      override def describe: String = "util.ArrayList[_]"
+      override def describe: String = "util.List[_]"
     }
 
   implicit val typeableMap: Typeable[HM] =
@@ -146,6 +146,6 @@ object RethinkImplicits {
         }
       }
 
-      override def describe: String = "util.ArrayList[_]"
+      override def describe: String = "util.HashMap[String, Any]"
     }
 }

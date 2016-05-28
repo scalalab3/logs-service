@@ -15,7 +15,7 @@ class ReadServiceRouteTest extends Specification with Specs2RouteTest {
 
   val readTestService = TestActorRef(new Actor {
     def receive = {
-      case Page(_, _) => sender ! PageLogsResponse(Seq(randomLog(), randomLog(), randomLog()))
+      case Page(_, _) => sender ! PageLogsResponse(Seq(randomLog(), randomLog(), randomLog()), 10)
     }
   })
 
@@ -51,7 +51,7 @@ class ReadServiceRouteTest extends Specification with Specs2RouteTest {
     "return header 'X-Total' with size" in {
       Get(Uri("/")) ~> readRoute ~> check {
         status === StatusCodes.OK
-        header("X-Total") === Some(RawHeader("X-Total", "3"))
+        header("X-Total") === Some(RawHeader("X-Total", "10"))
       }
     }
 
