@@ -1,10 +1,10 @@
 package com.github.scalalab3.logs
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorSystem, Props}
 import akka.stream.ActorMaterializer
 import com.github.scalalab3.logs.config.WebConfig
 import com.github.scalalab3.logs.http.WsApi
-import com.github.scalalab3.logs.services.{ChangesActor, SystemActor}
+import com.github.scalalab3.logs.services.{ChangesActor, DbService, SystemActor}
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.RethinkContext
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
@@ -22,9 +22,10 @@ object Boot extends App {
   implicit val mat = ActorMaterializer()
   val config = WebConfig.load()
 
-  val wsActor: ActorRef = system.actorOf(Props(classOf[WsApi], config), "ws-actor")
+  system.actorOf(Props(classOf[WsApi], config), "ws-actor")
+  val dbService = system.actorOf(Props(classOf[DbService], storage), "db-service")
+  system.actorOf(Props(classOf[ChangesActor], dbService), "changes-actor")
 
-  system.actorOf(ChangesActor.props(storage, wsActor), "db-actor")
   println("Call boot")
 
 }

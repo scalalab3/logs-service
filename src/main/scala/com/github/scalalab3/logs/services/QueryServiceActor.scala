@@ -12,7 +12,7 @@ class QueryServiceActor(dbService: ActorRef) extends AbstractActor {
       string.map(parse) match {
         case None => sender ! BadRequest("Empty query")
         case Some(queryTry) => queryTry match {
-          case Success(query) => dbService forward query
+          case Success(query) => dbService forward RequestQuery(query)
           case Failure(error) => sender ! BadRequest(error.getMessage)
         }
       }

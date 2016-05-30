@@ -1,25 +1,18 @@
 package com.github.scalalab3.logs.services
 
-import akka.actor.{ActorRef, Props}
-import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, Source}
-import com.github.scalalab3.logs.common.Log
-import com.github.scalalab3.logs.storage.LogStorageComponent
+import akka.actor.ActorRef
 
-class ChangesActor(storage: LogStorageComponent, wsActor: ActorRef)(implicit mat: ActorMaterializer) extends AbstractActor {
+class ChangesActor(dbService: ActorRef) extends AbstractActor {
 
   implicit val system = context.system
+  val stream = system.eventStream
 
-  private val source: Source[Log, Unit] = Source.fromIterator(() => storage.logStorage.changes())
+  dbService ! GetChanges()
 
-  val sink = Sink.actorRef(wsActor, "sent")
-
-  (source to sink) run()
-
-  override def receive: Receive = PartialFunction.empty
-}
-
-object ChangesActor {
-  def props(storage: LogStorageComponent, wsActor: ActorRef)(implicit mat: ActorMaterializer)
-    = Props(new ChangesActor(storage, wsActor))
+  override def receive = {
+    case Changes(iterator) =>
+      for (log <- iterator) {
+        stream.publish(LogChange(log))
+      }
+  }
 }

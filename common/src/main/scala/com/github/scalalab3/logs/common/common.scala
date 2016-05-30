@@ -3,7 +3,7 @@ package com.github.scalalab3.logs
 import com.github.scalalab3.logs.common.util.Keys
 
 package common {
-  case class Slice(orderBy: OrderBy = OrderBy(), offset: Offset)
+  case class Slice(offset: Offset, orderBy: OrderBy = OrderBy())
 
   case class Index(name: String = Keys.time)
 
