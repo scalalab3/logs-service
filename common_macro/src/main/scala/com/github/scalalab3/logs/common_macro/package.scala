@@ -15,8 +15,5 @@ package object common_macro {
 
   implicit def materialize[T: FromMap](map: HM): Option[T] = implicitly[FromMap[T]].fromMap(map)
 
-  implicit def materialize[T](json: JsValue): Option[T] = {
-    implicitly[FromJson].fromValue(json)
-    // FromJson.materializeM[T]
-  }
+  implicit def materialize[T: AnyToCC](json: JsValue): Option[T] = implicitly[AnyToCC[T]].fromValue(json)
 }

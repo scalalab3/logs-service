@@ -3,15 +3,18 @@ package com.github.scalalab3.logs.common_macro
 import scala.reflect.macros.whitebox.Context
 
 
-class AnyToCaseClass[R] (val c: Context) {
-  import c.universe._
+trait AnyToCC[CC] {
+  def fromValue[A](value: A): Option[CC]
+}
 
-  def fromValue[T](value: R): Option[T]
+class AnyToCaseClass (val c: Context) {
+  import c.universe._
 
   def getName(name: String, returnType: Type):Tree = ???
 
-  def materializeMacro[T: c.WeakTypeTag, Ret]: c.Expr[Ret] = {
+  def materializeMacro[T: c.WeakTypeTag, Ret]: c.Expr[AnyToCC[T]] = {
     val tpe = weakTypeOf[T]
+    val ret = weakTypeOf[Ret]
 
     // check if case class passed
     if (!(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass)) {
@@ -33,14 +36,14 @@ class AnyToCaseClass[R] (val c: Context) {
       val decoded = name.decodedName.toString
       val returnType = tpe.decl(name).typeSignature
 
-      val ret = getName(decoded, returnType)
-      fq"$name <- $ret"
+      val get = getName(decoded, returnType)
+      fq"$name <- $get"
     }
 
-    c.Expr[Ret] {
+    c.Expr[AnyToCC[T]] {
       q"""
-      new FromJson[$tpe] {
-        def fromValue(value: R): Option[$tpe] = {
+      new AnyToCC[$tpe] {
+        def fromValue(value: $ret): Option[$tpe] = {
           for (..$forLoop) yield $companion(..$names)
         }
       }

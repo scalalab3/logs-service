@@ -5,7 +5,7 @@ import scala.reflect.macros.whitebox.Context
 import play.api.libs.json._
 
 
-class FromJson (override val c: Context) extends AnyToCaseClass[JsValue](c) {
+class FromJson (override val c: Context) extends AnyToCaseClass(c) {
   import c.universe._
 
   override def getName(name: String, returnType: Type):Tree = name match {
@@ -16,5 +16,5 @@ class FromJson (override val c: Context) extends AnyToCaseClass[JsValue](c) {
 }
 
 object FromJson {
-  implicit def materializeM[T]: FromJson = macro FromJson.materializeMacro[T, FromJson]
+  implicit def macroI[T: AnyToCC]: AnyToCC[T] = macro FromJson.materializeMacro[T, FromJson]
 }
