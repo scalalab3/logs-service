@@ -6,10 +6,16 @@ import play.api.libs.json.JsValue
 
 
 trait AnyToCC[CaseClass, SourceType] {
+  implicit class HashMapExt(map: HM)(implicit converter: Converter[CaseClass]) {
+    def safeGet(key: String): Option[Any] = converter.fromMap(key -> Option(map.get(key)))
+  }
+
   def fromValue(value: SourceType): Option[CaseClass]
 }
 
 object AnyToCC {
+  implicit def stou(s: java.lang.String): java.util.UUID = java.util.UUID.fromString(s)
+
   implicit def macroJ[T]: AnyToCC[T, JsValue] = macro FromJson.materializeMacro[T, JsValue]
   implicit def macroM[T]: AnyToCC[T, HM] = macro FromMap.materializeMacro[T, HM]
 }
