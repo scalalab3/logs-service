@@ -1,20 +1,26 @@
 package com.github.scalalab3.logs.common_macro
 
+import scala.language.experimental.macros
 import scala.reflect.macros.whitebox.Context
+import play.api.libs.json.JsValue
 
 
-trait AnyToCC[CC] {
-  def fromValue[A](value: A): Option[CC]
+trait AnyToCC[CC, A] {
+  def fromValue(value: A): Option[CC]
 }
 
-class AnyToCaseClass (val c: Context) {
+object AnyToCC {
+  implicit def macroJ[T]: AnyToCC[T, JsValue] = macro FromJson.materializeMacro[T, JsValue]
+}
+
+abstract class AnyToCaseClass (val c: Context) {
   import c.universe._
 
   def getName(name: String, returnType: Type):Tree = ???
 
-  def materializeMacro[T: c.WeakTypeTag, Ret]: c.Expr[AnyToCC[T]] = {
+  def materializeMacro[T: c.WeakTypeTag, A: c.WeakTypeTag]: c.Expr[AnyToCC[T, A]] = {
     val tpe = weakTypeOf[T]
-    val ret = weakTypeOf[Ret]
+    val a = weakTypeOf[A]
 
     // check if case class passed
     if (!(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass)) {
@@ -40,15 +46,14 @@ class AnyToCaseClass (val c: Context) {
       fq"$name <- $get"
     }
 
-    c.Expr[AnyToCC[T]] {
+    c.Expr[AnyToCC[T, A]] {
       q"""
-      new AnyToCC[$tpe] {
-        def fromValue(value: $ret): Option[$tpe] = {
+      new AnyToCC[$tpe, $a] {
+        def fromValue(value: $a): Option[$tpe] = {
           for (..$forLoop) yield $companion(..$names)
         }
       }
     """
     }
-
   }
 }
