@@ -10,4 +10,8 @@ class FromMap (override val c: Context) extends AnyToCaseClass(c) {
     case "id" => q"""Some(Option(value.get("id")).map(_.asInstanceOf[java.util.UUID]))"""
     case any => q"Option(value.get($name)).map(_.asInstanceOf[$returnType])"
   }
+
+  override def materializeMacro[T: c.WeakTypeTag, A: c.WeakTypeTag]: c.Expr[AnyToCC[T, HM]] = {
+    super.materializeMacro[T, weakTypeOf[HM]]
+  }
 }
