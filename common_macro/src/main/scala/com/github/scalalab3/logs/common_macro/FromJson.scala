@@ -11,5 +11,4 @@ class FromJson (override val c: Context) extends AnyToCaseClass(c) {
       case "level" => q"""(value \ "level").asOpt[String]"""
       case any => q"(value \ $name).asOpt[$returnType]"
   }
-
 }

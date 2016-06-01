@@ -11,6 +11,7 @@ trait AnyToCC[CC, A] {
 
 object AnyToCC {
   implicit def macroJ[T]: AnyToCC[T, JsValue] = macro FromJson.materializeMacro[T, JsValue]
+  implicit def macroM[T]: AnyToCC[T, HM] = macro FromMap.materializeMacro[T, HM]
 }
 
 abstract class AnyToCaseClass (val c: Context) {
@@ -20,7 +21,13 @@ abstract class AnyToCaseClass (val c: Context) {
 
   def materializeMacro[T: c.WeakTypeTag, A: c.WeakTypeTag]: c.Expr[AnyToCC[T, A]] = {
     val tpe = weakTypeOf[T]
-    val a = weakTypeOf[A]
+    val hm = typeOf[java.util.HashMap[_, _]].typeConstructor
+    val a = weakTypeOf[A].typeConstructor == hm match {
+      case true => {
+        weakTypeOf[java.util.HashMap[String, Any]]
+      }
+      case other => weakTypeOf[A]
+    }
 
     // check if case class passed
     if (!(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass)) {
