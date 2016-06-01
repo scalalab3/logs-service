@@ -6,8 +6,6 @@ import play.api.libs.json.JsValue
 
 
 trait AnyToCC[CaseClass, SourceType] {
-  import java.util.UUID
-  implicit def strToUUID(s: String) = UUID.fromString(s)
   def fromValue(value: SourceType): Option[CaseClass]
 }
 
@@ -54,7 +52,7 @@ abstract class AnyToCaseClass (val c: Context) {
 
     c.Expr[AnyToCC[T, A]] {
       q"""
-      new AnyToCC[$tpe, $a] {
+       new AnyToCC[$tpe, $a] {
         def fromValue(value: $a): Option[$tpe] = {
           for (..$forLoop) yield $companion(..$names)
         }

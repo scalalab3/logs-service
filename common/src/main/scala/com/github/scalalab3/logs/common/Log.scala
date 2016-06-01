@@ -12,7 +12,3 @@ case class Log(
   message: String,
   cause: String,
   stackTrace: String)
-
-object Log {
-  implicit def strToUUID(s: String) = UUID.fromString(s)
-}

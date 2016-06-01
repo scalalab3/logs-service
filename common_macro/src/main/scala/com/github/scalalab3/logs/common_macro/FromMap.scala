@@ -7,7 +7,7 @@ class FromMap (override val c: Context) extends AnyToCaseClass(c) {
   import c.universe._
 
   override def getName(name: String, returnType: Type):Tree = name match {
-    case "id" => q"""Some(Option(value.get("id")).map(_.asInstanceOf[java.util.UUID]))"""
+    case "id" => q"""Option(Option(value.get("id")).map(_.asInstanceOf[java.util.UUID]))"""
     case any => q"Option(value.get($name)).map(_.asInstanceOf[$returnType])"
   }
 }
