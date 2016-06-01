@@ -5,8 +5,10 @@ import scala.reflect.macros.whitebox.Context
 import play.api.libs.json.JsValue
 
 
-trait AnyToCC[CC, A] {
-  def fromValue(value: A): Option[CC]
+trait AnyToCC[CaseClass, SourceType] {
+  import java.util.UUID
+  implicit def strToUUID(s: String) = UUID.fromString(s)
+  def fromValue(value: SourceType): Option[CaseClass]
 }
 
 object AnyToCC {
@@ -21,13 +23,10 @@ abstract class AnyToCaseClass (val c: Context) {
 
   def materializeMacro[T: c.WeakTypeTag, A: c.WeakTypeTag]: c.Expr[AnyToCC[T, A]] = {
     val tpe = weakTypeOf[T]
-    val hm = typeOf[java.util.HashMap[_, _]].typeConstructor
-    val a = weakTypeOf[A].typeConstructor == hm match {
-      case true => {
-        weakTypeOf[java.util.HashMap[String, Any]]
-      }
-      case other => weakTypeOf[A]
-    }
+    val a = if (weakTypeOf[A] <:< typeOf[java.util.HashMap[_, _]])
+      weakTypeOf[java.util.HashMap[String, Any]]
+    else
+      weakTypeOf[A]
 
     // check if case class passed
     if (!(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass)) {
