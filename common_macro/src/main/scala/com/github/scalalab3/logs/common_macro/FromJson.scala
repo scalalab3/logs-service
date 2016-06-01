@@ -11,4 +11,7 @@ class FromJson (override val c: Context) extends AnyToCaseClass(c) {
       case "level" => q"""(value \ "level").asOpt[String]"""
       case any => q"(value \ $name).asOpt[$returnType]"
   }
+  override def materializeMacro[T: c.WeakTypeTag, A: c.WeakTypeTag]: c.Expr[AnyToCC[T, A]] = {
+    super.materializeMacro[T, c.weakTypeTag[A].asInstanceOf[HM]]
+  }
 }

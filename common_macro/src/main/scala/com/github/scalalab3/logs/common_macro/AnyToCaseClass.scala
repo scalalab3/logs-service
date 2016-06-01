@@ -22,12 +22,14 @@ abstract class AnyToCaseClass (val c: Context) {
   def materializeMacro[T: c.WeakTypeTag, A: c.WeakTypeTag]: c.Expr[AnyToCC[T, A]] = {
     val tpe = weakTypeOf[T]
     val hm = typeOf[java.util.HashMap[_, _]].typeConstructor
-    val a = weakTypeOf[A].typeConstructor == hm match {
+    println(s"T: ${weakTypeOf[A]}")
+    val a = weakTypeOf[A]
+    /*val a = weakTypeOf[A].typeConstructor == hm match {
       case true => {
         weakTypeOf[java.util.HashMap[String, Any]]
       }
       case other => weakTypeOf[A]
-    }
+    }*/
 
     // check if case class passed
     if (!(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass)) {
