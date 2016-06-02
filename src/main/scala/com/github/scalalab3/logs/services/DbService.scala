@@ -1,13 +1,12 @@
 package com.github.scalalab3.logs.services
 
-import akka.actor.Actor
-import com.github.scalalab3.logs.common.{Offset, OffsetBound, Slice}
+import akka.actor.SupervisorStrategy.{Escalate, Resume, Stop}
+import akka.actor.{Actor, OneForOneStrategy}
+import com.github.scalalab3.logs.common.Slice
 import com.github.scalalab3.logs.storage.LogStorageComponent
-
+import com.rethinkdb.gen.exc.{ReqlPermissionError, ReqlResourceLimitError}
 
 class DbService(val component: LogStorageComponent) extends Actor {
-
-  import Offset._
 
   val storage = component.logStorage
 
@@ -16,15 +15,22 @@ class DbService(val component: LogStorageComponent) extends Actor {
       sender ! LogsResponse(storage.filter(query))
     case Create(log) =>
       storage.insert(log)
-    case page: Page =>
-      sender ! PageLogsResponse(storage.slice(page), storage.count())
+    case slice: Slice =>
+      sender ! PageLogsResponse(storage.slice(slice), storage.count())
     case GetChanges =>
       sender ! Changes(storage.changes())
   }
 
-  implicit def psgeToSlice(page: Page): Slice = {
-    val end = page.number * page.size
-    val offset = OffsetBound(end - page.size, false) to OffsetBound(end, true)
-    Slice(offset)
-  }
+  override val supervisorStrategy =
+    OneForOneStrategy() {
+      case _: ReqlResourceLimitError =>
+        println("=== resume")
+        Resume
+      case _: ReqlPermissionError =>
+        println("=== stop")
+        Stop
+      case _: Exception     =>
+        println("=== escalate")
+        Escalate
+    }
 }

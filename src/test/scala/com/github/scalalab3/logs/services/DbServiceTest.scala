@@ -1,15 +1,11 @@
 package com.github.scalalab3.logs.services
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.Props
 import akka.testkit.TestProbe
 import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.common.query.Query
 import com.github.scalalab3.logs.storage.LogStorageComponent
 import com.github.scalalab3.logs.tests.{AkkaSpec, GenLog}
-
-import scala.concurrent.duration.FiniteDuration
 
 class DbServiceTest extends AkkaSpec {
 
@@ -71,7 +67,7 @@ class DbServiceTest extends AkkaSpec {
 
     "page" in {
       val probe = TestProbe()
-      probe.send(dbService, Page(2, 5))
+      probe.send(dbService, expectedSlice)
       probe.expectMsg(PageLogsResponse(logs, 15))
       ok
     }
