@@ -3,6 +3,7 @@ package com.github.scalalab3.logs.services
 import java.util.concurrent.TimeUnit
 
 import akka.actor.Props
+import akka.testkit.TestProbe
 import com.github.scalalab3.logs.common._
 import com.github.scalalab3.logs.common.query.Query
 import com.github.scalalab3.logs.storage.LogStorageComponent
@@ -56,19 +57,22 @@ class DbServiceTest extends AkkaSpec {
     val queryActor = system.actorOf(Props(classOf[QueryServiceActor], dbService), "query-actor")
 
     "query" in {
-      queryActor ! new Request(Some("name contains 'log'"))
-      expectMsg(FiniteDuration(10, TimeUnit.SECONDS), LogsResponse(logs2))
+      val probe = TestProbe()
+      probe.send(queryActor, new Request(Some("name contains 'log'")))
+      probe.expectMsg(LogsResponse(logs2))
       ok
     }
 
     "create" in {
-      dbService ! new Create(randomLog)
+      val probe = TestProbe()
+      probe.send(dbService, new Create(randomLog))
       ok
     }
 
     "page" in {
-      dbService ! Page(2, 5)
-      expectMsg(FiniteDuration(10, TimeUnit.SECONDS), PageLogsResponse(logs, 15))
+      val probe = TestProbe()
+      probe.send(dbService, Page(2, 5))
+      probe.expectMsg(PageLogsResponse(logs, 15))
       ok
     }
   }

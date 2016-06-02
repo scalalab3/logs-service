@@ -3,6 +3,7 @@ package com.github.scalalab3.logs.services
 import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorSystem, Props}
+import akka.testkit.TestProbe
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.RethinkContext
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
@@ -25,7 +26,8 @@ class ChangesTest extends AkkaSpec {
     implicit val system = ActorSystem("test")
     val stream = system.eventStream
 
-    stream.subscribe(self, classOf[LogChange])
+    val probe = TestProbe()
+    stream.subscribe(probe.ref, classOf[LogChange])
 
     val dbService = system.actorOf(Props(classOf[DbService], storage), "db-service")
     system.actorOf(Props(classOf[ChangesActor], dbService), "changes-actor")
@@ -33,7 +35,7 @@ class ChangesTest extends AkkaSpec {
     "ChangesActor Test" >> {
       val log = GenLog.randomLog()
       storage.logStorage.insert(log)
-      expectMsg(FiniteDuration(10, TimeUnit.SECONDS), log)
+      probe.expectMsg(FiniteDuration(10, TimeUnit.SECONDS), log)
       ok
     }
 
