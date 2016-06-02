@@ -25,12 +25,11 @@ abstract class AnyToCaseClass (val c: Context) {
 
   def getName(name: String, returnType: Type):Tree = ???
 
+  def outType[A: c.WeakTypeTag] = weakTypeOf[A]
+
   def materializeMacro[T: c.WeakTypeTag, A: c.WeakTypeTag]: c.Expr[AnyToCC[T, A]] = {
     val tpe = weakTypeOf[T]
-    val a = if (weakTypeOf[A] <:< typeOf[java.util.HashMap[_, _]])
-      weakTypeOf[java.util.HashMap[String, Any]]
-    else
-      weakTypeOf[A]
+    val a = outType[A]
 
     // check if case class passed
     if (!(tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass)) {

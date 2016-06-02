@@ -9,4 +9,6 @@ class FromMap (override val c: Context) extends AnyToCaseClass(c) {
   override def getName(name: String, returnType: Type):Tree = {
     q"value.safeGet($name).map(_.asInstanceOf[$returnType])"
   }
+
+  override def outType[A: c.WeakTypeTag] = weakTypeOf[HM]
 }
