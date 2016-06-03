@@ -1,10 +1,8 @@
 package com.github.scalalab3.logs.services
 
-import akka.actor.SupervisorStrategy.{Escalate, Resume, Stop}
-import akka.actor.{Actor, OneForOneStrategy}
+import akka.actor.Actor
 import com.github.scalalab3.logs.common.Slice
 import com.github.scalalab3.logs.storage.LogStorageComponent
-import com.rethinkdb.gen.exc.{ReqlPermissionError, ReqlResourceLimitError}
 
 class DbService(val component: LogStorageComponent) extends Actor {
 
@@ -21,16 +19,4 @@ class DbService(val component: LogStorageComponent) extends Actor {
       sender ! Changes(storage.changes())
   }
 
-  override val supervisorStrategy =
-    OneForOneStrategy() {
-      case _: ReqlResourceLimitError =>
-        println("=== resume")
-        Resume
-      case _: ReqlPermissionError =>
-        println("=== stop")
-        Stop
-      case _: Exception     =>
-        println("=== escalate")
-        Escalate
-    }
 }

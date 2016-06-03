@@ -1,10 +1,7 @@
 package com.github.scalalab3.logs.http
 
 import java.net.InetSocketAddress
-import java.nio.channels.NotYetConnectedException
 
-import akka.actor.OneForOneStrategy
-import akka.actor.SupervisorStrategy.{Escalate, Resume}
 import akka.event.LoggingAdapter
 import com.github.scalalab3.logs.config.WebConfig
 import com.github.scalalab3.logs.services.{AbstractActor, LogChange}
@@ -31,16 +28,6 @@ class WsApi(val config: WebConfig) extends AbstractActor {
     case LogChange(log) => socketServer.send(Json.toJson(log).toString())
   }
 
-
-  override val supervisorStrategy =
-    OneForOneStrategy() {
-      case _: NotYetConnectedException =>
-        println("=== resume")
-        Resume
-      case _: Exception =>
-        println("=== escalate")
-        Escalate
-    }
 }
 
 case class SocketServer(host: String,
