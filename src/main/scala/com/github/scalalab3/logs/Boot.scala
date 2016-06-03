@@ -9,7 +9,7 @@ import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.RethinkContext
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 object Boot extends App {
 
@@ -21,17 +21,21 @@ object Boot extends App {
   val config = WebConfig.load()
   system.actorOf(Props(classOf[WsApi], config).withDispatcher(dn), "ws-actor")
 
-  val tryRethinkContext = Try(new RethinkContext(RethinkConfig.load()))
+  Try(new RethinkContext(RethinkConfig.load())) match {
+    case Success(context) =>
+      implicit val r = context
+      val storage = new LogStorageComponentImpl {
+        override val logStorage = new LogStorageImpl()
+      }
 
-  if (tryRethinkContext.isSuccess) {
-    implicit val r = tryRethinkContext.get
-    val storage = new LogStorageComponentImpl {
-      override val logStorage = new LogStorageImpl()
-    }
-
-    val dbService = system.actorOf(Props(classOf[DbService], storage)
-                                        .withDispatcher(dn)
-                                        .withRouter(RoundRobinPool(5)), "db-service")
-    system.actorOf(Props(classOf[ChangesActor], dbService).withDispatcher(dn), "changes-actor")
+      val dbService = system.actorOf(Props(classOf[DbService], storage)
+        .withDispatcher(dn)
+        .withRouter(RoundRobinPool(5)), "db-service")
+      system.actorOf(Props(classOf[ChangesActor], dbService).withDispatcher(dn), "changes-actor")
+    case Failure(fail) =>
+      println(fail.getMessage)
+      system.terminate
+      sys.exit(1)
   }
+
 }
