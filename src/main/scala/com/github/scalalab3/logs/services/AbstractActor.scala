@@ -13,19 +13,19 @@ trait AbstractActor extends Actor with ActorLogging {
   override val supervisorStrategy =
     OneForOneStrategy() {
       case _: NotYetConnectedException =>
-        println("=== resume")
+        log.warning("=== resume")
         Resume
       case _: ReqlInternalError =>
-        println("=== resume")
+        log.warning("=== resume")
         Resume
       case _: ReqlResourceLimitError =>
-        println("=== resume")
+        log.warning("=== resume")
         Resume
       case _: ReqlPermissionError =>
-        println("=== stop")
+        log.warning("=== stop")
         Stop
       case _: Exception =>
-        println("=== escalate")
+        log.warning("=== escalate")
         Escalate
     }
 
