@@ -1,17 +1,18 @@
 package com.github.scalalab3.logs.services
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import java.util.concurrent.TimeUnit
+
+import akka.actor.{ActorSystem, Props}
 import akka.testkit.TestProbe
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.RethinkContext
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
-import com.github.scalalab3.logs.tests.GenLog
-import org.specs2.mutable.Specification
+import com.github.scalalab3.logs.tests.{AkkaSpec, GenLog}
 
+import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 
-class ChangesTest extends Specification {
+class ChangesTest extends AkkaSpec {
 
   val tryRethinkContext = Try(new RethinkContext(RethinkConfig.load()))
 
@@ -19,18 +20,23 @@ class ChangesTest extends Specification {
 
     implicit val r = tryRethinkContext.get
     val storage = new LogStorageComponentImpl {
-      override val logStorage: LogStorage = new LogStorageImpl()
+      override val logStorage = new LogStorageImpl()
     }
 
-    implicit val system = ActorSystem("logs-service")
-    implicit val mat = ActorMaterializer()
-    val wsActor = TestProbe()
-    system.actorOf(ChangesActor.props(storage, wsActor.ref), "db-actor")
+    implicit val system = ActorSystem("test")
+    val stream = system.eventStream
+
+    val probe = TestProbe()
+    stream.subscribe(probe.ref, classOf[LogChange])
+
+    val dbService = system.actorOf(Props(classOf[DbService], storage), "db-service")
+    system.actorOf(Props(classOf[ChangesActor], dbService), "changes-actor")
 
     "ChangesActor Test" >> {
       val log = GenLog.randomLog()
       storage.logStorage.insert(log)
-      wsActor.expectMsg(log) must_== log
+      probe.expectMsg(FiniteDuration(10, TimeUnit.SECONDS), log)
+      ok
     }
 
   } else "Skipped Test" >> skipped("RethinkContext is not available in ")
