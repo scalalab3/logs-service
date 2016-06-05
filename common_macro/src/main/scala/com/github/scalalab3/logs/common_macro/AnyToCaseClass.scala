@@ -23,6 +23,8 @@ object AnyToCC {
 abstract class AnyToCaseClass (val c: Context) {
   import c.universe._
 
+  case class Field(name: Tree, forGet: Tree)
+
   def getName(name: String, returnType: Type):Tree = ???
 
   def outType[A: c.WeakTypeTag] = weakTypeOf[A]
@@ -42,18 +44,16 @@ abstract class AnyToCaseClass (val c: Context) {
       case m: MethodSymbol if m.isPrimaryConstructor => m
     }.get.paramLists.head
 
-    val names = fields.map { field =>
-      q"${field.name.toTermName}"
-    }
-
-    val forLoop = fields.map { field =>
+    val bundle:List[Field] = fields.map { field =>
       val name = field.name.toTermName
       val decoded = name.decodedName.toString
       val returnType = tpe.decl(name).typeSignature
-
       val get = getName(decoded, returnType)
-      fq"$name <- $get"
+      Field(q"$name", fq"$name <- $get")
     }
+
+    val names = bundle.map(_.name)
+    val forLoop = bundle.map(_.forGet)
 
     c.Expr[AnyToCC[T, A]] {
       q"""
