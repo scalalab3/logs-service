@@ -46,7 +46,8 @@ class ConversionTest extends Specification {
   }
 
   trait genLogNoneId extends Scope {
-    val (obj, map) = pairLogMap(None)
+    val (obj, m) = pairLogMap(None)
+    val map: HM = m
   }
 }
 
