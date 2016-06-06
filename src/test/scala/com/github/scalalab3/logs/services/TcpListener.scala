@@ -1,15 +1,14 @@
-package com.github.scalalab3.logs
+package com.github.scalalab3.logs.services
 
 import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorRef, PoisonPill, Props}
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import com.github.scalalab3.logs.tests.GenLog.randomLog
-import com.github.scalalab3.logs.tests.AkkaSpec
-import play.api.libs.json.Json
 import com.github.scalalab3.logs.common.json.LogJsonImplicits._
-import services.{TCPListener, Ready}
+import com.github.scalalab3.logs.tests.AkkaSpec
+import com.github.scalalab3.logs.tests.GenLog.randomLog
+import play.api.libs.json.Json
 
 
 sealed trait TestMsg
@@ -19,8 +18,8 @@ case class Message(msg:String) extends TestMsg
 
 
 class Client (host:String, port:Int, out:ActorRef) extends Actor {
-  import context.system
   import Tcp._
+  import context.system
 
   var connection:Option[ActorRef] = None
   IO(Tcp) ! Connect(new InetSocketAddress(host, port))
@@ -35,7 +34,7 @@ class Client (host:String, port:Int, out:ActorRef) extends Actor {
       connection = Some(conn)
       out ! Ok
     case c @ Message(msg) =>
-      connection.map(conn => {
+      connection.foreach(conn => {
         conn ! Write(ByteString(msg))
       })
   }
@@ -72,7 +71,7 @@ class TCPListenerTest extends AkkaSpec {
       val j = Json.stringify(Json.toJson(logMsg))
       tc ! Message(j)
       receiveOne(period) match {
-        case logMsg => ok
+        case `logMsg` => ok
       }
     }
     "Kill" in {
