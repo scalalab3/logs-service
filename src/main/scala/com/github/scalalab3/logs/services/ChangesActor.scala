@@ -8,7 +8,7 @@ class ChangesActor(dbService: ActorRef) extends AbstractActor {
   val stream = system.eventStream
 
   override def preStart = {
-    dbService ! GetChanges()
+    dbService ! GetChanges
   }
 
   override def receive = {

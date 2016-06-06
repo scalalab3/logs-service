@@ -16,7 +16,7 @@ case class Request(query: Option[String]) extends AbstractRequest
 case class RequestQuery(query: Query) extends AbstractRequest
 case class Page(number: Int, size: Int) extends AbstractRequest
 case class Create(log: Log) extends AbstractRequest
-case class GetChanges() extends AbstractRequest
+case object GetChanges extends AbstractRequest
 
 case class LogChange(log: Log)
 
