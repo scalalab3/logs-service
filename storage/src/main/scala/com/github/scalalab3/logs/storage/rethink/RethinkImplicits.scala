@@ -4,6 +4,7 @@ import java.util
 
 import com.github.scalalab3.logs.common.Slice
 import com.github.scalalab3.logs.common_macro._
+import com.github.scalalab3.logs.storage.rethink.TypeableImplicits._
 import com.rethinkdb.RethinkDB
 import com.rethinkdb.ast.ReqlAst
 import com.rethinkdb.gen.ast.{Db, ReqlFunction1, Table}
@@ -12,6 +13,8 @@ import shapeless.Typeable
 
 import scala.collection.JavaConverters._
 import scala.util.Try
+import scalaz.Scalaz._
+import scalaz._
 
 object RethinkImplicits {
 
@@ -20,16 +23,12 @@ object RethinkImplicits {
   }
 
   private def isExists(name: String, optList: Option[util.List[_]]): Boolean = {
-    val res = for {
-      list <- optList
-    } yield list.contains(name)
-
-    res.getOrElse(false)
+    optList.exists(_.contains(name))
   }
 
   /** r */
   implicit class RethinkDBExt(r: RethinkDB)(implicit c: Connection) {
-    def dbList = Typeable[util.List[_]].cast(r.dbList().perform())
+    def dbList = cast[util.List[_]].apply(r.dbList())
 
     def dbSafe(name: String): Db = {
       if (!isExists(name, dbList)) r.dbCreate(name).perform()
@@ -43,7 +42,7 @@ object RethinkImplicits {
 
   /** Db */
   implicit class DbExt(db: Db)(implicit c: Connection) {
-    def tableList = Typeable[util.List[_]].cast(db.tableList().perform())
+    def tableList = cast[util.List[_]].apply(db.tableList())
 
     def tableSafe(name: String): Table = {
       if (!isExists(name, tableList)) db.tableCreate(name).perform()
@@ -57,31 +56,32 @@ object RethinkImplicits {
 
   /** Table */
   implicit class TableExt(table: Table)(implicit c: Connection) {
-    def cursorSafe(): Option[Cursor[HM]] = Typeable[Cursor[HM]].cast(table.perform())
+    val filter = (func1: ReqlFunction1) => table.filter(func1).some
+    val slice = (slice: Slice) => TableSliceToReqlExpr(table, slice).some
 
-    def changesSafe(): Option[Cursor[HM]] = Typeable[Cursor[HM]].cast(table.changes().perform())
+    def kleisli[T](implicit fromMap: HM => Option[T]) = cast[Cursor[HM]] >=> toList >=> listModify[T]
 
-    def filterSafe(func1: ReqlFunction1): Option[Cursor[HM]] = Try {
-      Typeable[Cursor[HM]].cast {
-        table.filter(func1).perform()
-      }
-    }.toOption.flatten
+    def filterSafe[T](implicit fromMap: HM => Option[T]): ReaderT[Option, ReqlFunction1, List[T]] =
+      kleisli[T].composeK(filter)
+
+    def sliceSafe[T](implicit fromMap: HM => Option[T]): ReaderT[Option, Slice, List[T]] =
+      kleisli[T].composeK(slice)
+
+    def changesSafe[T](implicit fromMap: HM => Option[T]): Option[Iterator[T]] = {
+      cast[Cursor[HM]] >=> toIterator >=> iteratorModify[T]
+    }.run(table.changes())
 
     // `true` if successful insert
-    def insertSafe(map: HM): Boolean = {
-      val res = for {
-        m <- Typeable[HM].cast(table.insert(map).perform())
-        i <- Option(m.get(ReqlConstants.inserted))
-      } yield i
-
-      res.contains(1L)
-    }
+    def insertSafe(map: HM): Boolean = cast[HM]
+      .andThenK(_.get(ReqlConstants.inserted).some)
+      .run(table.insert(map))
+      .contains(1L)
 
     def insertSafe[T](obj: T)(implicit toMap: T => HM): Boolean = insertSafe(toMap(obj))
 
-    def countSafe(): Option[Long] = Typeable[Long].cast(table.count().perform())
+    def countSafe(): Option[Long] = cast[Long].run(table.count())
 
-    def indexList = Typeable[util.List[_]].cast(table.indexList().perform())
+    def indexList = cast[util.List[_]].run(table.indexList())
 
     def indexCreateSafe(name: String): Unit = {
       if (!isExists(name, indexList)) {
@@ -89,63 +89,29 @@ object RethinkImplicits {
         table.indexWait(name).perform()
       }
     }
-
-    def sliceSafe(slice: Slice) = Try {
-      Typeable[Cursor[HM]].cast {
-        TableSliceToReqlExpr(table, slice).perform()
-      }
-    }.toOption.flatten
   }
 
-  /** Cursor */
-  implicit class CursorExt(cursor: Cursor[HM]) {
-    def toScalaList[T](implicit fromMap: HM => Option[T]): List[T] =
-      cursor.toList.asScala.flatMap(fromMap(_)).toList
-
-    def toScalaIterator[T](implicit fromMap: HM => Option[T]): Iterator[T] = {
-      cursor.iterator.asScala.flatMap { next =>
-        val map = next.get(ReqlConstants.newVal)
-        Typeable[HM].cast(map)
-      }.flatMap(fromMap(_))
-    }
+  /** Utils */
+  def cast[T: Typeable](implicit c: Connection): Kleisli[Option, ReqlAst, T] = Kleisli {
+    ast => Try(Typeable[T].cast(ast.perform())).toOption.flatten
   }
 
-  implicit val typeableCursor: Typeable[Cursor[HM]] =
-    new Typeable[Cursor[HM]] {
-      override def cast(t: Any): Option[Cursor[HM]] = {
-        if (t == null) None
-        else t match {
-          case c: Cursor[_] => Try(c.asInstanceOf[Cursor[HM]]).toOption
-          case _ => None
-        }
-      }
+  val toList: Kleisli[Option, Cursor[HM], List[HM]] = Kleisli {
+    _.toList.asScala.toList.some
+  }
 
-      override def describe: String = "Cursor[util.HashMap[String, Any]]"
-    }
+  val toIterator: Kleisli[Option, Cursor[HM], Iterator[HM]] = Kleisli {
+    _.iterator.asScala.flatMap { next =>
+      val map = next.get(ReqlConstants.newVal)
+      Typeable[HM].cast(map)
+    }.some
+  }
 
-  implicit val typeableList: Typeable[util.List[_]] =
-    new Typeable[util.List[_]] {
-      override def cast(t: Any): Option[util.List[_]] = {
-        if (t == null) None
-        else t match {
-          case c: util.List[_] => Some(c)
-          case _ => None
-        }
-      }
+  def listModify[T](implicit fromMap: HM => Option[T]): Kleisli[Option, List[HM], List[T]] = Kleisli {
+    _.flatMap(fromMap(_)).some
+  }
 
-      override def describe: String = "util.List[_]"
-    }
-
-  implicit val typeableMap: Typeable[HM] =
-    new Typeable[HM] {
-      override def cast(t: Any): Option[HM] = {
-        if (t == null) None
-        else t match {
-          case c: util.Map[_, _] => Try(c.asInstanceOf[HM]).toOption
-          case _ => None
-        }
-      }
-
-      override def describe: String = "util.HashMap[String, Any]"
-    }
+  def iteratorModify[T](implicit fromMap: HM => Option[T]): Kleisli[Option, Iterator[HM], Iterator[T]] = Kleisli {
+    _.flatMap(fromMap(_)).some
+  }
 }
