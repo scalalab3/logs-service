@@ -9,9 +9,8 @@ import com.github.scalalab3.logs.common.util.Values
 
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
-
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz._
+import scalaz.\/
 
 object QueryParserImpl extends QueryParser with RegexParsers {
 

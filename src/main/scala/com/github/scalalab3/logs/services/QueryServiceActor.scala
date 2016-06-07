@@ -3,7 +3,7 @@ package com.github.scalalab3.logs.services
 import akka.actor.ActorRef
 import com.github.scalalab3.logs.parser.QueryParserImpl._
 
-import scalaz._
+import scalaz.{\/-, -\/}
 
 class QueryServiceActor(dbService: ActorRef) extends AbstractActor {
 
