@@ -25,26 +25,17 @@ trait LogStorageComponentImpl extends LogStorageComponent {
 
     override def filter(query: Query): List[Log] = {
       val predicate = QueryToReqlFunction1(query)
-      r.table()
-        .filterSafe(predicate)
-        .map(_.toScalaList[Log])
-        .getOrElse(Nil)
+      r.table().filterSafe.run(predicate).getOrElse(Nil)
     }
 
     override def slice(slice: Slice): List[Log] = {
-      r.table()
-        .sliceSafe(slice)
-        .map(_.toScalaList[Log])
-        .getOrElse(Nil)
+      r.table().sliceSafe.run(slice).getOrElse(Nil)
     }
 
     override def indexCreate(index: Index): Unit = r.table().indexCreateSafe(index.name)
 
     override def changes(): Iterator[Log] = {
-      r.table()
-        .changesSafe()
-        .map(_.toScalaIterator[Log])
-        .getOrElse(Iterator.empty)
+      r.table().changesSafe.getOrElse(Iterator.empty)
     }
   }
 }

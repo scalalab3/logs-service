@@ -5,7 +5,7 @@ import scala.util.Try
 
 import akka.actor.{ActorRef, Props}
 import akka.io.{IO, Tcp}
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.Json
 
 import com.github.scalalab3.logs.common.Log
 
@@ -28,26 +28,24 @@ class LineReceiver (override val output:ActorRef) extends BaseListener {
   }
 
   def parseLine(line:String) = Try(Json.parse(line))
-    .map(materialize[Log](_).foreach(writeLog _))
+    .map(materialize[Log](_).foreach(writeLog))
 }
 
 class TCPListener(host:String, port:Int, out:ActorRef) extends AbstractActor {
   import context.system
   import Tcp._
 
-  log.info(s"Bind to ${host}:${port}")
+  log.info(s"Bind to $host:$port")
   IO(Tcp) ! Bind(self, new InetSocketAddress(host, port))
 
   def receive = {
     case bound@Bound(localAddress) => out ! Ready
-    case connected@Connected(remote, local) => {
+    case connected@Connected(remote, local) =>
       val handler = context.actorOf(Props(classOf[LineReceiver], out))
       val conn = sender()
       conn ! Register(handler)
-    }
-    case CommandFailed(msg: Bind) => {
+    case CommandFailed(msg: Bind) =>
       log.warning(s"Bind failed: $msg")
       context stop self
-    }
   }
 }

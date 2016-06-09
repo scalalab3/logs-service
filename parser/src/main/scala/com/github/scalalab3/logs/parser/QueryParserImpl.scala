@@ -9,6 +9,8 @@ import com.github.scalalab3.logs.common.util.Values
 
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
+import scalaz.Scalaz._
+import scalaz.\/
 
 object QueryParserImpl extends QueryParser with RegexParsers {
 
@@ -53,20 +55,17 @@ object QueryParserImpl extends QueryParser with RegexParsers {
 
   // %%
 
-  override def parse(query: String): Try[Query] = Try(expr(query)) match {
+  override def parse(query: String): String \/ Query = Try(expr(query)) match {
     case Success(stream) =>
 
       val queryStream = for {
         gll.Success(q, _) <- stream
       } yield q
 
-      queryStream.headOption match {
-        case Some(q) => Success(q)
-        case None => fail
-      }
+      queryStream.headOption.fold(fail)(_.right[String])
 
-    case Failure(e) => Failure(e)
+    case Failure(_) => fail
   }
 
-  private lazy val fail = Failure(new RuntimeException("Wrong query"))
+  private val fail = "Wrong query".left[Query]
 }

@@ -1,10 +1,9 @@
 package com.github.scalalab3.logs.services
 
-import akka.actor.Actor
 import com.github.scalalab3.logs.common.Slice
 import com.github.scalalab3.logs.storage.LogStorageComponent
 
-class DbService(val component: LogStorageComponent) extends Actor {
+class DbService(val component: LogStorageComponent) extends AbstractActor {
 
   val storage = component.logStorage
 
