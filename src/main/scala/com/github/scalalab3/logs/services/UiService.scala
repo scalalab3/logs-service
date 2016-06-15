@@ -6,7 +6,7 @@ import spray.http.StatusCodes
 import spray.routing.{ExceptionHandler, HttpService}
 
 
-class UiService(service: ActorRef) extends AbstractActor with HttpService with QueryServiceRoute with ReadServiceRoute {
+class UiService(override val abstractService: ActorRef) extends AbstractActor with HttpService with QueryServiceRoute with ReadServiceRoute {
 
   val exceptionHandler = ExceptionHandler {
     case _: Exception => complete(StatusCodes.InternalServerError)
@@ -20,8 +20,6 @@ class UiService(service: ActorRef) extends AbstractActor with HttpService with Q
       }
     )
   }
-
-  override def abstractService: ActorRef = service
 
   override def actorRefFactory: ActorRefFactory = context
 }
