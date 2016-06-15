@@ -18,7 +18,7 @@ trait AbstractHttpService extends HttpService {
 
   implicit def executionContext = actorRefFactory.dispatcher
 
-  def abstractService: ActorRef
+  val abstractService: ActorRef
 
   def pass(future: Future[Any]): Future[ToResponseMarshallable] = future.mapTo[AbstractResponse].map(handler)
 
