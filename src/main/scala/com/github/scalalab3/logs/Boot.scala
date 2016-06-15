@@ -5,7 +5,7 @@ import akka.routing.RoundRobinPool
 import com.github.scalalab3.logs.common.Index
 import com.github.scalalab3.logs.config.WebConfig
 import com.github.scalalab3.logs.http.WsApi
-import com.github.scalalab3.logs.services.{ChangesActor, DbService, SystemActor}
+import com.github.scalalab3.logs.services._
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.RethinkContext
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
@@ -34,6 +34,11 @@ object Boot extends App {
         .withDispatcher(dn)
         .withRouter(RoundRobinPool(5)), "db-service")
       system.actorOf(Props(classOf[ChangesActor], dbService).withDispatcher(dn), "changes-actor")
+
+      val queryService = system.actorOf(Props(classOf[QueryServiceActor], dbService).withDispatcher(dn), "query-actor")
+      val readService = system.actorOf(Props(classOf[ReadServiceActor], dbService).withDispatcher(dn), "read-actor")
+      val supervisor = system.actorOf(Props(classOf[SupervisorActor], readService, queryService).withDispatcher(dn), "supervisor-actor")
+      val uiService = system.actorOf(Props(classOf[UiService], supervisor).withDispatcher(dn), "ui-actor")
     case Failure(fail) =>
       println(fail.getMessage)
       system.terminate
