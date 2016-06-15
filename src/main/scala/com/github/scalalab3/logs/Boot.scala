@@ -1,6 +1,7 @@
 package com.github.scalalab3.logs
 
 import akka.actor.{ActorSystem, Props}
+import akka.io.IO
 import akka.routing.RoundRobinPool
 import com.github.scalalab3.logs.common.Index
 import com.github.scalalab3.logs.config.WebConfig
@@ -9,6 +10,7 @@ import com.github.scalalab3.logs.services._
 import com.github.scalalab3.logs.storage.LogStorageComponentImpl
 import com.github.scalalab3.logs.storage.rethink.RethinkContext
 import com.github.scalalab3.logs.storage.rethink.config.RethinkConfig
+import spray.can.Http
 
 import scala.util.{Failure, Success, Try}
 
@@ -35,10 +37,11 @@ object Boot extends App {
         .withRouter(RoundRobinPool(5)), "db-service")
       system.actorOf(Props(classOf[ChangesActor], dbService).withDispatcher(dn), "changes-actor")
 
-      val queryService = system.actorOf(Props(classOf[QueryServiceActor], dbService).withDispatcher(dn), "query-actor")
-      val readService = system.actorOf(Props(classOf[ReadServiceActor], dbService).withDispatcher(dn), "read-actor")
-      val supervisor = system.actorOf(Props(classOf[SupervisorActor], readService, queryService).withDispatcher(dn), "supervisor-actor")
+      val supervisor = system.actorOf(Props(classOf[SupervisorActor], dbService, dn).withDispatcher(dn), "supervisor-actor")
       val uiService = system.actorOf(Props(classOf[UiService], supervisor).withDispatcher(dn), "ui-actor")
+
+      IO(Http) ! Http.Bind(uiService, interface = config.host, port = config.port)
+
     case Failure(fail) =>
       println(fail.getMessage)
       system.terminate

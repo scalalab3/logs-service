@@ -18,7 +18,7 @@ class QueryServiceTest extends LogJsonSpecification with Specs2RouteTest {
 
   val subject = new QueryServiceRoute {
     override implicit def actorRefFactory: ActorRefFactory = system
-    override def abstractService: ActorRef = queryTestService
+    override val abstractService: ActorRef = queryTestService
   }
 
   val queryRoute = subject.queryRoute
