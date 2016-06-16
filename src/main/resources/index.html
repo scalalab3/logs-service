@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+</head>
+<body id="body">
+
+<div id="main">
+<h1>logs</h1>
+<div id="panel">
+<input type="text" id="query" /> <input type="button" id="send" value="send" />
+</div>
+<div id="logs"></div>
+</div>
+
+<script type='application/javascript'>
+
+var c = function(m) { console.log(m); }
+
+
+
+ws = new WebSocket("ws://localhost:8088");
+ws.onopen = function() {
+  c("open ws");
+};
+
+ws.onmessage = function(e) {
+  c("new message " + e);
+};
+
+ws.onclose = function() {
+  c("close ws");
+};
+
+
+var serverUrl = "http://localhost:8081"
+
+var queryUrl = function(q) {
+  return serverUrl + "/query?query=" + encodeURI(q);
+};
+
+document.querySelector("#send").addEventListener("click", function(e) {
+
+  var query = document.querySelector("#query").value;
+
+  function reqListener () {
+    c(this.responseText);
+  }
+
+  var req = new XMLHttpRequest();
+  req.addEventListener("load", reqListener)
+  req.open("GET", queryUrl(query));
+  req.send();
+
+});
+
+
+</script>
+
+
+
+</body>
+</html>
